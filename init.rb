@@ -1,3 +1,5 @@
+require_dependency 'process_workflow_tracker_patch'
+
 Redmine::Plugin.register :redmine_process_workflow do
   name 'Redmine Process Workflow plugin'
   author 'David S Anderson'
