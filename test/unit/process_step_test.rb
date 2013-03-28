@@ -37,4 +37,14 @@ class ProcessStepTest < ActiveSupport::TestCase
     step = ProcessStep.new(:name => '', :issue_status => @status, :tracker => @tracker)
     assert !step.save
   end
+  
+  def test_process_role
+    role = ProcessRole.new(:tracker => @tracker, :name => 'role_name')
+    assert role.save
+        
+    step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => @tracker, :process_role => role)
+    assert step.save
+        
+    assert_equal role, step.process_role
+  end
 end
