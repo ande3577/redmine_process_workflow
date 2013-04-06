@@ -6,6 +6,8 @@ class ProcessField < ActiveRecord::Base
   
   has_many :process_actions
   
+  has_one :process_condition
+  
   validates_presence_of :process_step, :custom_field
   
 end

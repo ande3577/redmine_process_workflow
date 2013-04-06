@@ -63,4 +63,22 @@ class ProcessConditionTest < ActiveSupport::TestCase
     
   end
   
+  def test_evaluate_eql
+    condition = ProcessCondition.new(:process_field => @field, :field_value => 'value', :process_step => @step, :comparison_mode => 'eql?')
+    condition.save
+    
+    assert !condition.evaluate('another_value')
+    assert condition.evaluate('value')
+  end
+  
+  def test_lt
+    condition = ProcessCondition.new(:process_field => @field, :field_value => '2', :process_step => @step, :comparison_mode => 'lt?')
+    condition.save
+    
+    assert !condition.evaluate('13')
+    assert !condition.evaluate('2')
+    assert condition.evaluate('1')
+    
+  end
+  
 end
