@@ -31,6 +31,9 @@ class ProcessActionTest < ActiveSupport::TestCase
     @issue = Issue.first
     assert @issue.save
     
+    @process_state = ProcessState.new(:issue => @issue, :process_step => @step)
+    assert @process_state.save
+    
     @timestamp = Time.now
     
     @action = ProcessAction.new(:process_field => @field, :value => 'value', :timestamp => @timestamp, :user => @user, :issue => @issue)
@@ -77,7 +80,7 @@ class ProcessActionTest < ActiveSupport::TestCase
     @action.save
     assert @action.apply_action()
     
-    assert_equal @status, @issue.status
+    assert_equal @step, @issue.process_step
   end
   
   def test_apply_action_no_change
@@ -87,7 +90,7 @@ class ProcessActionTest < ActiveSupport::TestCase
     @action.save
     assert @action.apply_action()
     
-    assert_equal @status, @issue.status
+    assert_equal @step, @issue.process_step
   end
   
   def test_apply_action_change_status
@@ -97,7 +100,7 @@ class ProcessActionTest < ActiveSupport::TestCase
     @action.save
     assert @action.apply_action()
     
-    assert_equal @next_status, @issue.status
+    assert_equal @next_step, @issue.process_step
   end
   
   def test_apply_no_change_false_condition
@@ -106,8 +109,7 @@ class ProcessActionTest < ActiveSupport::TestCase
     
     @action.save
     assert @action.apply_action()
-    
-    assert_equal @status, @issue.status
+    assert_equal @step, @issue.process_step
   end
   
   def test_apply_action_change_status_false_condition
@@ -117,6 +119,6 @@ class ProcessActionTest < ActiveSupport::TestCase
     @action.save
     assert @action.apply_action()
     
-    assert_equal @next_status, @issue.status
+    assert_equal @next_step, @issue.process_step
   end
 end
