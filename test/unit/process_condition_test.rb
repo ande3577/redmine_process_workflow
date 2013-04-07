@@ -20,6 +20,7 @@ class ProcessConditionTest < ActiveSupport::TestCase
   def test_create
     condition = ProcessCondition.new(:process_field => @field, :field_value => 'value', :step_if_true => @step, :comparison_mode => 'eql?')
     assert condition.save
+    condition.reload
     
     assert_equal @field, condition.process_field
     assert_equal 'value', condition.field_value
@@ -45,6 +46,7 @@ class ProcessConditionTest < ActiveSupport::TestCase
   def test_create_with_next_step_if_false
     condition = ProcessCondition.new(:process_field => @field, :field_value => 'value', :step_if_false => @step, :comparison_mode => 'eql?')
     assert condition.save
+    condition.reload
     
     assert_equal @step, condition.step_if_false
   end

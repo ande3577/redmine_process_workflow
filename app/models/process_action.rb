@@ -5,13 +5,18 @@ class ProcessAction < ActiveRecord::Base
   belongs_to :process_field
   has_one :user
   
-  validates_presence_of :issue, :process_field, :date, :user
+  validates_presence_of :issue, :process_field, :timestamp, :user
   
   def apply_action
     condition = process_field.process_condition
     unless condition.nil?
       if condition.evaluate(value)
-        issue.status = condition.process_step.issue_status
+        unless condition.step_if_true.nil?
+          issue.status = condition.step_if_true.issue_status
+          return issue.save
+        end
+      elsif !condition.step_if_false.nil?
+        issue.status = condition.step_if_false.issue_status
         return issue.save
       end
     end

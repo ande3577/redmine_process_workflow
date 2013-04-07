@@ -31,9 +31,9 @@ class ProcessActionTest < ActiveSupport::TestCase
     @issue = Issue.first
     assert @issue.save
     
-    @date = Time.now
+    @timestamp = Time.now
     
-    @action = ProcessAction.new(:process_field => @field, :value => 'value', :date => @date, :user => @user, :issue => @issue)
+    @action = ProcessAction.new(:process_field => @field, :value => 'value', :timestamp => @timestamp, :user => @user, :issue => @issue)
   end
   
   
@@ -42,7 +42,7 @@ class ProcessActionTest < ActiveSupport::TestCase
     
     assert_equal @field, @action.process_field
     assert_equal 'value', @action.value
-    assert_equal @date, @action.date
+    assert_equal @timestamp, @action.timestamp
     assert_equal @user, @action.user
     assert_equal @issue, @action.issue
   end
@@ -58,8 +58,8 @@ class ProcessActionTest < ActiveSupport::TestCase
     assert_equal nil, @action.value
   end
   
-  def test_create_without_date
-    @action.date = nil
+  def test_create_without_timestamp
+    @action.timestamp = nil
     assert !@action.save
   end
   
@@ -81,7 +81,7 @@ class ProcessActionTest < ActiveSupport::TestCase
   end
   
   def test_apply_action_no_change
-    condition = ProcessCondition.new(:process_field => @field, :field_value => 'mismatched_value', :process_step => @step, :comparison_mode => 'eql?')
+    condition = ProcessCondition.new(:process_field => @field, :field_value => 'mismatched_value', :step_if_true => @step, :comparison_mode => 'eql?')
     assert condition.save
     
     @action.save
@@ -91,7 +91,27 @@ class ProcessActionTest < ActiveSupport::TestCase
   end
   
   def test_apply_action_change_status
-    condition = ProcessCondition.new(:process_field => @field, :field_value => 'value', :process_step => @next_step, :comparison_mode => 'eql?')
+    condition = ProcessCondition.new(:process_field => @field, :field_value => 'value', :step_if_true => @next_step, :comparison_mode => 'eql?')
+    assert condition.save
+    
+    @action.save
+    assert @action.apply_action()
+    
+    assert_equal @next_status, @issue.status
+  end
+  
+  def test_apply_no_change_false_condition
+    condition = ProcessCondition.new(:process_field => @field, :field_value => 'mismatched_value', :step_if_false => @step, :comparison_mode => 'ne?')
+    assert condition.save
+    
+    @action.save
+    assert @action.apply_action()
+    
+    assert_equal @status, @issue.status
+  end
+  
+  def test_apply_action_change_status_false_condition
+    condition = ProcessCondition.new(:process_field => @field, :field_value => 'value', :step_if_false => @next_step, :comparison_mode => 'ne?')
     assert condition.save
     
     @action.save
