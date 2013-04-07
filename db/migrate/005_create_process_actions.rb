@@ -3,7 +3,7 @@ class CreateProcessActions < ActiveRecord::Migration
     create_table :process_actions do |t|
       t.integer :process_field_id
       t.string :value
-      t.datetime :date
+      t.datetime :timestamp
       t.integer :user_id
       t.integer :issue_id
     end

@@ -2,6 +2,8 @@ class ProcessStep < ActiveRecord::Base
   unloadable
   
   belongs_to :tracker
+  acts_as_list :scope => :tracker
+  
   belongs_to :issue_status
   has_one :process_role
   has_many :process_fields
