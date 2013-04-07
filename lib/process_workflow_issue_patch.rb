@@ -27,7 +27,7 @@ module ProcessWorkflowIssuePatch
       
       self.status = step.issue_status
       unless step.process_role.nil?
-        next_member = ProcessMember.where(:issue_id => self.id, :process_role_id => step.process_role.id).first
+        next_member = ProcessMember.where(:issue_id => self.id, :process_role_id => step.process_role_id).first
         next_assignee = next_member.user unless next_member.nil?
         self.assigned_to = next_assignee unless next_assignee.nil?
       end
@@ -46,7 +46,7 @@ module ProcessWorkflowIssuePatch
   
   def init_process
     if self.tracker.process_workflow?
-#      apply_process_step_change(self.tracker.process_steps.first)
+      apply_process_step_change(self.tracker.process_steps.first)
     end
   end
   

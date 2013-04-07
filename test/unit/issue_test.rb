@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper', __FILE__)
 
-class TrackerTest < ActiveSupport::TestCase
+class IssueTest < ActiveSupport::TestCase
   fixtures :projects, :users, :members, :member_roles, :roles,
            :groups_users,
            :trackers, :projects_trackers,
@@ -24,10 +24,10 @@ class TrackerTest < ActiveSupport::TestCase
     @next_role = ProcessRole.new(:tracker => @tracker, :name => 'next_role')
     assert @next_role.save
     
-    @step = ProcessStep.new(:name => 'step', :issue_status => @status, :tracker => @tracker, :process_role => @role)
+    @step = ProcessStep.new(:name => 'step', :issue_status => @status, :tracker => @tracker, :process_role_id => @role.id)
     assert @step.save
     
-    @next_step = ProcessStep.new(:name => 'next_step', :issue_status => @next_status, :tracker => @tracker, :process_role => @next_role)
+    @next_step = ProcessStep.new(:name => 'next_step', :issue_status => @next_status, :tracker => @tracker, :process_role_id => @next_role.id)
     assert @next_step.save
     
     @issue = Issue.new(:project_id => 1, :tracker => @tracker, :author_id => 3,
@@ -41,6 +41,8 @@ class TrackerTest < ActiveSupport::TestCase
     assert @member.save
     @next_member = ProcessMember.new(:process_role => @next_role, :user => @next_user, :issue => @issue)
     assert @next_member.save
+    
+    assert @issue.save
   end
   
   def test_apply_step
@@ -49,6 +51,20 @@ class TrackerTest < ActiveSupport::TestCase
     assert_equal @next_step, @issue.process_step
     assert_equal @next_status, @issue.status
     assert_equal @next_user, @issue.assigned_to
+  end
+  
+  def test_apply_step_without_role
+    @next_step.process_role = nil
+    @next_step.save
+    
+    @issue.assigned_to = @user
+    @issue.save
+    
+    assert @issue.apply_process_step_change(@next_step)
+        
+    assert_equal @next_step, @issue.process_step
+    assert_equal @next_status, @issue.status
+    assert_equal @user, @issue.assigned_to
   end
   
   def test_create
