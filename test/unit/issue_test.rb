@@ -57,9 +57,6 @@ class IssueTest < ActiveSupport::TestCase
     @next_step.process_role = nil
     @next_step.save
     
-    @issue.assigned_to = @user
-    @issue.save
-    
     assert @issue.apply_process_step_change(@next_step)
         
     assert_equal @next_step, @issue.process_step
@@ -71,6 +68,22 @@ class IssueTest < ActiveSupport::TestCase
     assert_equal @step, @issue.process_step
     assert_equal @status, @issue.status
     assert_equal @user, @issue.assigned_to
+  end
+  
+  def test_update_assign_when_changing_member
+    @member.user = @next_user
+    @member.save
+    @issue.reload
+    
+    assert_equal @next_user, @issue.assigned_to
+  end
+  
+  def test_update_assign_when_changing_role
+    @step.process_role = @next_role
+    @step.save
+    @issue.reload
+    
+    assert_equal @next_user, @issue.assigned_to
   end
   
 end

@@ -6,4 +6,6 @@ class ProcessRole < ActiveRecord::Base
   
   validates_presence_of :tracker
   validates :name, :length => { :minimum => 1 }
+  
+    
 end
