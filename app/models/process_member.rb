@@ -3,7 +3,8 @@ class ProcessMember < ActiveRecord::Base
   
   belongs_to :user
   belongs_to :process_role
+  belongs_to :issue
   
-  validates_presence_of :user, :process_role
+  validates_presence_of :user, :process_role, :issue
   
 end

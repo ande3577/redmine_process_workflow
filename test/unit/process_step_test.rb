@@ -44,6 +44,7 @@ class ProcessStepTest < ActiveSupport::TestCase
         
     step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => @tracker, :process_role => role)
     assert step.save
+    step.reload
         
     assert_equal role, step.process_role
   end

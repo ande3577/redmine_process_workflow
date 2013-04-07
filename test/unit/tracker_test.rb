@@ -21,6 +21,17 @@ class TrackerTest < ActiveSupport::TestCase
     assert_equal step, @tracker.process_steps.first
   end
   
+  def test_is_not_process_workflow
+    assert !@tracker.process_workflow?
+  end
+  
+  def test_is_process_workflow
+    step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => @tracker)
+    assert step.save
+    
+    assert @tracker.process_workflow?
+  end
+  
   def test_steps_order
     step1 = ProcessStep.new(:name => 'step1', :issue_status => @status, :tracker => @tracker)
     assert step1.save
@@ -40,7 +51,6 @@ class TrackerTest < ActiveSupport::TestCase
     assert_equal 1, step2.position
     
     assert_equal step2, @tracker.process_steps.first
-    
   end
   
 end

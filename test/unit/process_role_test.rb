@@ -3,6 +3,7 @@ require File.expand_path('../../test_helper', __FILE__)
 class ProcessRoleTest < ActiveSupport::TestCase
   fixtures :trackers
   fixtures :users
+  fixtures :issues
   
   def setup
     @tracker = Tracker.first
@@ -34,7 +35,7 @@ class ProcessRoleTest < ActiveSupport::TestCase
     
     assert_equal 0, role.process_members.count
     
-    member = ProcessMember.new(:process_role => role, :user => @user)
+    member = ProcessMember.new(:process_role => role, :user => @user, :issue => Issue.first)
     assert member.save
     
     assert_equal 1, role.process_members.count
