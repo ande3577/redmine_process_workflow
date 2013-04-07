@@ -12,12 +12,10 @@ class ProcessAction < ActiveRecord::Base
     unless condition.nil?
       if condition.evaluate(value)
         unless condition.step_if_true.nil?
-          issue.status = condition.step_if_true.issue_status
-          return issue.save
+          return issue.apply_process_step_change(condition.step_if_true)
         end
       elsif !condition.step_if_false.nil?
-        issue.status = condition.step_if_false.issue_status
-        return issue.save
+        return issue.apply_process_step_change(condition.step_if_false)
       end
     end
     true
