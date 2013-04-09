@@ -2,7 +2,7 @@ class ProcessController < ApplicationController
   unloadable
   
   before_filter :require_admin
-  before_filter :find_tracker, :only => [ :edit, :update, :destroy ]
+  before_filter :find_tracker, :except => [ :index, :new, :create ]
 
   def index
     @trackers = []
@@ -23,6 +23,8 @@ class ProcessController < ApplicationController
   end
   
   def edit
+    @steps = ProcessStep.where(:tracker_id => @tracker.id)
+    
     respond_to do |format|
       format.html
     end
@@ -40,7 +42,7 @@ class ProcessController < ApplicationController
       format.html { render :action => :new }
     end
   end
-
+  
 private  
   def find_tracker
     id = params[:id]
@@ -54,6 +56,6 @@ private
       render_404
       return false
     end
-        
   end
+  
 end

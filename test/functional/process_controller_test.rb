@@ -64,6 +64,9 @@ class ProcessControllerTest < ActionController::TestCase
     @request.session[:user_id] = @admin.id
     get :edit, :id => @tracker.id
     assert_response 200
+    assert_equal @tracker, assigns(:tracker)
+    assert_equal 1, assigns(:steps).size
+    assert_equal @step, assigns(:steps).first
   end
   
   def test_create_without_name
@@ -90,6 +93,4 @@ class ProcessControllerTest < ActionController::TestCase
     assert_equal 0, tracker.workflow_rules.count
   end
   
-  
- 
 end
