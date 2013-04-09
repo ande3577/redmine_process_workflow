@@ -14,7 +14,7 @@ module ProcessWorkflowTrackerPatch
   
   module InstanceMethods
     def process_workflow?
-      return !process_steps.empty?
+      return self.process_workflow
     end
   end
   

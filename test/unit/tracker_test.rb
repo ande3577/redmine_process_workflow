@@ -26,8 +26,9 @@ class TrackerTest < ActiveSupport::TestCase
   end
   
   def test_is_process_workflow
-    step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => @tracker)
-    assert step.save
+    @tracker.process_workflow = true
+    @tracker.save
+    @tracker.reload
     
     assert @tracker.process_workflow?
   end
