@@ -6,6 +6,6 @@ Redmine::Plugin.register :redmine_process_workflow do
   author 'David S Anderson'
   description 'Add a process based workflow to redmine'
   version '0.0.1'
-  url 'http://example.com/path/to/plugin'
-  author_url 'http://example.com/about'
+  url 'https://www.github.com/ande3577/redmine_process_workflow'
+  author_url 'https://www.github.com/ande3577'
 end
