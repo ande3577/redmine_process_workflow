@@ -19,15 +19,22 @@ class ProcessStepsController < ApplicationController
   def create
     @step = ProcessStep.new(params[:process_step])
     @step.tracker = @tracker
-    @step.save
-    redirect_to :controller => :process, :action => :edit, :id => @tracker.id
+    if @step.save
+      redirect_to :controller => :process, :action => :edit, :id => @tracker.id
+      return
+    end
+    new
+    render :action => :new
   end
 
   def update
     if @step.update_attributes(params[:process_step])
       flash[:notice] = l(:notice_successful_update)
+      redirect_to :controller => :process, :action => :edit, :id => @step.tracker_id
+      return
     end
-    redirect_to :controller => :process, :action => :edit, :id => @step.tracker_id
+    edit
+    render :action => :edit
   end
 
   def destroy

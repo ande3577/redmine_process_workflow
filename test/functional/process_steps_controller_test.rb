@@ -47,7 +47,7 @@ class ProcessStepsControllerTest < ActionController::TestCase
   
   def test_create
     assert_difference 'ProcessStep.count' do
-          post :create, :id => @tracker.id, :process_step => { :name => 'New step', :issue_status_id => @status.id, :tracker_id => @tracker.id, :process_role_id => @role.id }
+          post :create, :id => @tracker.id, :process_step => { :name => 'New step', :issue_status_id => @status.id, :process_role_id => @role.id }
     end
     assert_redirected_to :controller => :process, :action => 'edit', :id => @tracker.id
     step = ProcessStep.first(:order => 'id DESC')
@@ -55,6 +55,14 @@ class ProcessStepsControllerTest < ActionController::TestCase
     assert_equal @status, step.issue_status
     assert_equal @tracker, step.tracker
     assert_equal @role, step.process_role
+  end
+  
+  def test_create_without_name
+    assert_difference 'ProcessStep.count', 0 do
+          post :create, :id => @tracker.id, :process_step => { :issue_status_id => @status.id, :process_role_id => @role.id }
+    end
+    assert_response 200
+    assert_template :new
   end
   
   def test_update
@@ -72,6 +80,18 @@ class ProcessStepsControllerTest < ActionController::TestCase
     assert_equal new_tracker, @step.tracker
     assert_equal new_role, @step.process_role
     assert flash[:notice]
+  end
+  
+  def test_update_with_invalid_status_id
+    new_status = IssueStatus.find(2)
+    new_tracker = Tracker.find(2)
+    new_role = ProcessRole.new(:name => 'new_role', :tracker => new_tracker)
+    assert new_role.save
+    
+    flash[:notice] = nil
+    post :update, :id => @step.id, :process_step => { :name => 'Updated name', :issue_status_id => 99, :tracker_id => new_tracker.id, :process_role_id => new_role.id }
+    assert_response 200
+    assert_template :edit  
   end
   
   def test_destroy
