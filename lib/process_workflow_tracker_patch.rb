@@ -6,6 +6,7 @@ module ProcessWorkflowTrackerPatch
     base.send(:include, InstanceMethods)
     base.class_eval do
       has_many :process_steps, :order => :position
+      has_many :process_roles
     end
   end
   

@@ -21,6 +21,14 @@ class TrackerTest < ActiveSupport::TestCase
     assert_equal step, @tracker.process_steps.first
   end
   
+  def test_process_roles
+    role = ProcessRole.new(:name => 'role', :tracker => @tracker)
+    assert role.save
+    
+    assert_equal 1, @tracker.process_roles.count
+    assert_equal role, @tracker.process_roles.first
+  end
+  
   def test_is_not_process_workflow
     assert !@tracker.process_workflow?
   end
