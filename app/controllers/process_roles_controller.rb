@@ -31,6 +31,7 @@ class ProcessRolesController < ApplicationController
   def update
     @role.update_attributes(params[:process_role])
     if @role.save
+      flash[:notice] = l(:notice_successful_update)
       redirect_to :controller => :process, :action => :edit, :id => @role.tracker.id
       return
     end
