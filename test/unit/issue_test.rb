@@ -14,6 +14,9 @@ class IssueTest < ActiveSupport::TestCase
   
   def setup
     @tracker = Tracker.first
+    @tracker.process_workflow = true
+    @tracker.save
+    
     @user = User.first
     @next_user = User.find(2)
     @status = IssueStatus.first

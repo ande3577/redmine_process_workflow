@@ -21,7 +21,7 @@ class ProcessRolesController < ApplicationController
     @role = ProcessRole.new(params[:process_role])
     @role.tracker = @tracker
     if @role.save
-      redirect_to :controller => :process, :action => :edit, :id => @tracker.id
+      redirect_to :controller => :process_workflows, :action => :edit, :id => @tracker.id
       return
     end
     new
@@ -32,7 +32,7 @@ class ProcessRolesController < ApplicationController
     @role.update_attributes(params[:process_role])
     if @role.save
       flash[:notice] = l(:notice_successful_update)
-      redirect_to :controller => :process, :action => :edit, :id => @role.tracker.id
+      redirect_to :controller => :process_workflows, :action => :edit, :id => @role.tracker.id
       return
     end
     edit
@@ -42,12 +42,12 @@ class ProcessRolesController < ApplicationController
   def destroy
     tracker = @role.tracker
     @role.destroy
-    redirect_to :controller => :process, :action => :edit, :id => tracker.id
+    redirect_to :controller => :process_workflows, :action => :edit, :id => tracker.id
   end
   
   private
   def find_tracker
-    id = params[:id]
+    id = params[:process_workflow_id]
     if id.nil?
       render_404
       return false
