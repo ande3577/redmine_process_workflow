@@ -24,7 +24,7 @@ class ProcessActionTest < ActiveSupport::TestCase
     @next_step = ProcessStep.new(:name => 'next_step', :issue_status => @next_status, :tracker => @tracker)
     assert @next_step.save
     
-    @field = ProcessField.new(:process_step => @step, :custom_field => @custom_field)
+    @field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :comparison_mode => 'none')
     assert @field.save
     
     @user = User.find(2)
@@ -84,8 +84,10 @@ class ProcessActionTest < ActiveSupport::TestCase
   end
   
   def test_apply_action_no_change
-    condition = ProcessCondition.new(:process_field => @field, :field_value => 'mismatched_value', :step_if_true => @step, :comparison_mode => 'eql?')
-    assert condition.save
+    @field.field_value = 'mismatched_value'
+    @field.step_if_true = @step
+    @field.comparison_mode = 'eql?'
+    @field.save
     
     @action.save
     assert @action.apply_action()
@@ -94,8 +96,10 @@ class ProcessActionTest < ActiveSupport::TestCase
   end
   
   def test_apply_action_change_status
-    condition = ProcessCondition.new(:process_field => @field, :field_value => 'value', :step_if_true => @next_step, :comparison_mode => 'eql?')
-    assert condition.save
+    @field.field_value = 'value'
+    @field.step_if_true = @next_step
+    @field.comparison_mode = 'eql?'
+    @field.save
     
     @action.save
     assert @action.apply_action()
@@ -104,8 +108,10 @@ class ProcessActionTest < ActiveSupport::TestCase
   end
   
   def test_apply_no_change_false_condition
-    condition = ProcessCondition.new(:process_field => @field, :field_value => 'mismatched_value', :step_if_false => @step, :comparison_mode => 'ne?')
-    assert condition.save
+    @field.field_value = 'value'
+    @field.step_if_false = @step
+    @field.comparison_mode = 'ne?'
+    @field.save
     
     @action.save
     assert @action.apply_action()
@@ -113,8 +119,10 @@ class ProcessActionTest < ActiveSupport::TestCase
   end
   
   def test_apply_action_change_status_false_condition
-    condition = ProcessCondition.new(:process_field => @field, :field_value => 'value', :step_if_false => @next_step, :comparison_mode => 'ne?')
-    assert condition.save
+    @field.field_value = 'value'
+    @field.step_if_false = @next_step
+    @field.comparison_mode = 'ne?'
+    @field.save
     
     @action.save
     assert @action.apply_action()

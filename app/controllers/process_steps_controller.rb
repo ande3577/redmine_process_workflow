@@ -15,10 +15,6 @@ class ProcessStepsController < ApplicationController
 
   def edit
     @fields = @step.process_fields
-    @conditions = []
-    @fields.each do |field|
-      @conditions << field.process_condition
-    end  
   end
 
   def create

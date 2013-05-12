@@ -48,7 +48,6 @@ class ProcessStepsControllerTest < ActionController::TestCase
     assert_equal @tracker, assigns(:tracker)
     
     assert assigns(:fields)
-    assert assigns(:conditions)
   end
   
   def test_create

@@ -8,15 +8,12 @@ class ProcessAction < ActiveRecord::Base
   validates_presence_of :issue, :process_field, :timestamp, :user
   
   def apply_action
-    condition = process_field.process_condition
-    unless condition.nil?
-      if condition.evaluate(value)
-        unless condition.step_if_true.nil?
-          return issue.apply_process_step_change(condition.step_if_true)
-        end
-      elsif !condition.step_if_false.nil?
-        return issue.apply_process_step_change(condition.step_if_false)
+    if process_field.evaluate(value)
+      unless process_field.step_if_true.nil?
+        return issue.apply_process_step_change(process_field.step_if_true)
       end
+    elsif !process_field.step_if_false.nil?
+      return issue.apply_process_step_change(process_field.step_if_false)
     end
     true
   end

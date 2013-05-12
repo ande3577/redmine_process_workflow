@@ -6,6 +6,10 @@
   <table class="list">
     <thead><tr>
     <th><%=l(:field_custom_field)%></th>
+    <th><%=l(:field_comparison_mode)%></th>
+    <th><%=l(:field_field_value)%></th>
+    <th><%=l(:field_step_if_true)%></th>
+    <th><%=l(:field_step_if_false)%></th>
     <th></th>
     <th></th>
     </tr></thead>
@@ -13,6 +17,10 @@
   <% @fields.each do |field| %>
     <tr class="<%= cycle 'odd', 'even' %>">
       <td align="center"><%= field.custom_field.name %>
+      <td align="center"><%= field.comparison_mode %>
+      <td align="center"><%= field.field_value unless field.comparison_mode == 'none' %></th>
+      <td align="center"><%= field.step_if_true.name unless field.comparison_mode == 'none' || field.step_if_true.nil? %></th>
+      <td align="center"><%= field.step_if_false.name unless field.comparison_mode == 'none' || field.step_if_false.nil? %></th>
       <td class="buttons"><%= link_to l(:button_edit), { :controller => 'process_fields', :action => 'edit', :id => field.id }, {:class => 'icon icon-edit'} %></td>
       <td class="buttons"><%= delete_link field %></td>
     </tr>

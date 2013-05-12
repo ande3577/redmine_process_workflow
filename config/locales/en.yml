@@ -10,3 +10,7 @@ en:
   field_process_role: "Role"
   label_condition_plural: "Conditions"
   field_custom_field: "Custom Field"
+  field_comparison_mode: "Comparison Mode"
+  field_field_value: "Comparison Value"
+  field_step_if_true: "Next Step if True"
+  field_step_if_false: "Next Step if False"
