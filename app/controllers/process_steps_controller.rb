@@ -29,7 +29,8 @@ class ProcessStepsController < ApplicationController
   end
 
   def update
-    if @step.update_attributes(params[:process_step])
+    @step.safe_attributes = params[:process_step]
+    if @step.save
       flash[:notice] = l(:notice_successful_update)
       redirect_to :controller => :process_workflows, :action => :edit, :id => @step.tracker_id
       return

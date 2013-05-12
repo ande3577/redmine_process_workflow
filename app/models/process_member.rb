@@ -2,6 +2,10 @@ class ProcessMember < ActiveRecord::Base
   include Redmine::SafeAttributes
   unloadable
   
+  include Redmine::SafeAttributes
+  
+  safe_attributes 'user_id'
+  
   belongs_to :user
   belongs_to :process_role
   belongs_to :issue

@@ -1,6 +1,8 @@
 class ProcessAction < ActiveRecord::Base
   unloadable
   
+  include Redmine::SafeAttributes
+  
   belongs_to :issue
   belongs_to :process_field
   has_one :user

@@ -70,16 +70,10 @@ class ProcessRolesControllerTest < ActionController::TestCase
   def test_update
     new_tracker = Tracker.find(2)
     post :update, :id => @role.id, :process_role => { :name => 'New name', :tracker_id => new_tracker.id }
-    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => new_tracker.id
+    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => @tracker.id
     @role.reload
     assert_equal 'New name', @role.name
-    assert_equal new_tracker, @role.tracker
-  end
-  
-  def test_update_with_invalid_tracker_id
-    post :update, :id => @role.id, :process_role => { :name => 'New name', :tracker_id => 99 }
-    assert_response 200
-    assert_template :edit
+    assert_equal @tracker, @role.tracker
   end
   
   def test_destroy

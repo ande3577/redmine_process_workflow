@@ -1,6 +1,10 @@
 class ProcessRole < ActiveRecord::Base
   unloadable
   
+  include Redmine::SafeAttributes
+  
+  safe_attributes 'name'
+  
   belongs_to :tracker
   has_many :process_members
   

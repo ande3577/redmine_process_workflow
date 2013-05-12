@@ -91,11 +91,11 @@ class ProcessFieldsControllerTest < ActionController::TestCase
     assert new_step.save
     
     post :update, :id => @field.id, :process_field => { :custom_field_id => new_custom_field.id, :process_step_id => new_step.id }
-    assert_redirected_to :controller => :process_steps, :action => :edit, :id => new_step.id  
+    assert_redirected_to :controller => :process_steps, :action => :edit, :id => @step.id  
     
     @field.reload
     assert_equal new_custom_field, @field.custom_field
-    assert_equal new_step, @field.process_step
+    assert_equal @step, @field.process_step
   end
   
   def test_update_invalid

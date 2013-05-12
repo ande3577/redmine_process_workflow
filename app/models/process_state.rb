@@ -1,6 +1,10 @@
 class ProcessState < ActiveRecord::Base
   unloadable
   
+  include Redmine::SafeAttributes
+  
+  safe_attributes 'process_step_id'
+  
   belongs_to :issue
   belongs_to :process_step
   

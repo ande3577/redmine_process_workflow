@@ -28,7 +28,7 @@ class ProcessFieldsController < ApplicationController
   end
 
   def update
-    @field.update_attributes(params[:process_field])
+    @field.safe_attributes = params[:process_field]
     if @field.save
       flash[:notice] = l(:notice_successful_update)
       redirect_to :controller => :process_steps, :action => :edit, :id => @field.process_step.id

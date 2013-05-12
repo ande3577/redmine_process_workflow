@@ -9,6 +9,10 @@ end
 class ProcessField < ActiveRecord::Base
   unloadable
   
+  include Redmine::SafeAttributes
+  
+  safe_attributes 'custom_field_id', 'comparison_mode', 'field_value', 'step_if_true_id', 'step_if_false_id'
+  
   belongs_to :process_step 
   belongs_to :custom_field
   

@@ -78,11 +78,11 @@ class ProcessStepsControllerTest < ActionController::TestCase
     
     flash[:notice] = nil
     post :update, :id => @step.id, :process_step => { :name => 'Updated name', :issue_status_id => new_status.id, :tracker_id => new_tracker.id, :process_role_id => new_role.id }
-    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => new_tracker.id
+    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => @tracker.id
     @step.reload
     assert_equal 'Updated name', @step.name
     assert_equal new_status, @step.issue_status
-    assert_equal new_tracker, @step.tracker
+    assert_equal @tracker, @step.tracker
     assert_equal new_role, @step.process_role
     assert flash[:notice]
   end

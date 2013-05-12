@@ -29,7 +29,7 @@ class ProcessRolesController < ApplicationController
   end
 
   def update
-    @role.update_attributes(params[:process_role])
+    @role.safe_attributes = params[:process_role]
     if @role.save
       flash[:notice] = l(:notice_successful_update)
       redirect_to :controller => :process_workflows, :action => :edit, :id => @role.tracker.id
