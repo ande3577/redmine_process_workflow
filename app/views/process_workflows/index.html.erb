@@ -1,0 +1,24 @@
+<div class="contextual">
+<%= link_to l(:label_process_new), { :controller => :process_workflows, :action => :new }, :class => 'icon icon-add' %>
+</div>
+
+<h2><%=l(:label_process_plural)%></h2>
+
+<table class="list">
+  <thead><tr>
+  <th><%=l(:label_process)%></th>
+  <th></th>
+  </tr></thead>
+  <tbody>
+<% for tracker in @trackers %>
+  <tr class="<%= cycle("odd", "even") %>">
+  <td><%= link_to h(tracker.name), { controller => :process_workflows, :action => :edit, :id => tracker.id } %></td>
+  <td class="buttons">
+    <%= delete_link tracker_path(tracker) %>
+  </td>
+  </tr>
+<% end %>
+  </tbody>
+</table>
+
+<% html_title(l(:label_tracker_plural)) -%>

@@ -1,0 +1,21 @@
+<%= link_to l(:label_custom_field_new), { :controller => :process_fields, :action => :new, :process_step_id => step.id }, :class => 'icon icon-add' %>
+
+<% if @fields.empty? %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+  <table class="list">
+    <thead><tr>
+    <th><%=l(:field_custom_field)%></th>
+    <th></th>
+    <th></th>
+    </tr></thead>
+    <tbody>
+  <% @fields.each do |field| %>
+    <tr class="<%= cycle 'odd', 'even' %>">
+      <td align="center"><%= field.custom_field.name %>
+      <td class="buttons"><%= link_to l(:button_edit), { :controller => 'process_fields', :action => 'edit', :id => field.id }, {:class => 'icon icon-edit'} %></td>
+      <td class="buttons"><%= delete_link field %></td>
+    </tr>
+  <% end %>
+  </table>
+<% end %>

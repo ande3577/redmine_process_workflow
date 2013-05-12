@@ -47,7 +47,7 @@ class ProcessRolesController < ApplicationController
   
   private
   def find_tracker
-    id = params[:process_workflow_id]
+    id = params[:tracker_id]
     if id.nil?
       render_404
       return false
@@ -72,6 +72,6 @@ class ProcessRolesController < ApplicationController
       render_404
       return false
     end
-    
+    @tracker = @role.tracker
   end
 end

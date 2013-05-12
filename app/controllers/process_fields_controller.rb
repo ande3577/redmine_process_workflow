@@ -34,6 +34,7 @@ class ProcessFieldsController < ApplicationController
       redirect_to :controller => :process_steps, :action => :edit, :id => @field.process_step.id
       return
     end
+    @field.reload
     edit
     render :action => :edit
   end
@@ -46,7 +47,7 @@ class ProcessFieldsController < ApplicationController
   
   private
   def find_step
-    id = params[:id]
+    id = params[:process_step_id]
     if id.nil?
       render_404
       return false

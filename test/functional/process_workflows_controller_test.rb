@@ -1,9 +1,10 @@
 require File.expand_path('../../test_helper', __FILE__)
 
-class ProcessControllerTest < ActionController::TestCase
+class ProcessWorkflowsControllerTest < ActionController::TestCase
   fixtures :trackers
   fixtures :issue_statuses
   fixtures :users
+  fixtures :projects
   
   def setup
     @tracker = Tracker.first
@@ -14,6 +15,9 @@ class ProcessControllerTest < ActionController::TestCase
     @status = IssueStatus.first
     @step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => @tracker)
     assert @step.save
+    
+    @role = ProcessRole.new(:name => 'role', :tracker => @tracker)
+    assert @role.save
     
     @user = User.find(2)
     @admin = User.where(:admin => true).first
@@ -67,6 +71,7 @@ class ProcessControllerTest < ActionController::TestCase
     assert_equal @tracker, assigns(:tracker)
     assert_equal 1, assigns(:steps).size
     assert_equal @step, assigns(:steps).first
+    assert_equal @role, assigns(:roles).first
   end
   
   def test_create_without_name

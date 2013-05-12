@@ -1,3 +1,12 @@
 # English strings go here for Rails i18n
 en:
-  # my_label: "My label"
+  processes: "Processes"
+  label_process_plural: "Processes"
+  label_process_new: "New Process"
+  label_process: "Process"
+  label_step_plural: "Steps"
+  label_step_new: "New Step"
+  field_issue_status: "Status"
+  field_process_role: "Role"
+  label_condition_plural: "Conditions"
+  field_custom_field: "Custom Field"

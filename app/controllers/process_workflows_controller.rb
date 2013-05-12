@@ -1,18 +1,12 @@
-class ProcessController < ApplicationController
+class ProcessWorkflowsController < ApplicationController
   unloadable
   
   before_filter :require_admin
+  before_filter :find_trackers
+  before_filter :find_projects
   before_filter :find_tracker, :except => [ :index, :new, :create ]
 
   def index
-    @trackers = []
-      
-    Tracker.sorted.each do |t|
-      if t.process_workflow?
-        @trackers << t
-      end
-    end
-    
     respond_to do |format|
       format.html
     end
@@ -24,6 +18,7 @@ class ProcessController < ApplicationController
   
   def edit
     @steps = ProcessStep.where(:tracker_id => @tracker.id)
+    @roles = ProcessRole.where(:tracker_id => @tracker.id)
     
     respond_to do |format|
       format.html
@@ -44,6 +39,16 @@ class ProcessController < ApplicationController
   end
   
 private  
+  def find_trackers
+    @trackers = []
+      
+    Tracker.sorted.each do |t|
+      if t.process_workflow?
+        @trackers << t
+      end
+    end
+  end
+
   def find_tracker
     id = params[:id]
     if id.nil?
@@ -56,6 +61,10 @@ private
       render_404
       return false
     end
+  end
+  
+  def find_projects
+    @projects = Project.visible.active.all
   end
   
 end

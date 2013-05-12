@@ -1,1 +1,3 @@
-<h2>ProcessStepsController#index</h2>
+<h2><%= link_to l(:label_process_plural), {:controller => :process_workflows, :action => :index } %> &#187; <%= link_to @tracker.name, {:controller => :process_workflows, :action => :edit, :id => @tracker.id } %> &#187; <%= l(:label_step_plural) %> </h2>
+
+<%= render :partial => 'process_steps/process_steps', :locals => { :roles => @tracker.process_steps } %>

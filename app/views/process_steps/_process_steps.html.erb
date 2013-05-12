@@ -1,0 +1,26 @@
+ <%= link_to l(:label_step_new), { :controller => :process_steps, :action => :new, :tracker_id => @tracker.id }, :class => 'icon icon-add' %>
+
+<% if @steps.empty? %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+  <table class="list">
+    <thead><tr>
+    <th><%=l(:field_name)%></th>
+    <th><%=l(:field_status)%></th>
+    <th><%=l(:field_role)%></th>
+    <th></th>
+    <th></th>
+    </tr></thead>
+    <tbody>
+  <% @steps.each do |step| %>
+    <tr class="<%= cycle 'odd', 'even' %>">
+      <td align="center"><%= step.name %></td>
+      <td align="center"><%= step.issue_status.to_s %>
+      <td align="center"><%= step.process_role.nil? ? l(:label_none) : step.process_role.name %>
+      <td class="buttons"><%= link_to l(:button_edit), { :controller => 'process_steps', :action => 'edit', :id => step.id }, {:class => 'icon icon-edit'} %></td>
+      <td class="buttons"><%= delete_link step %></td>
+    </tr>
+  <% end %>
+  </table>
+<% end %>
+ 

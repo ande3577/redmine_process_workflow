@@ -1,1 +1,6 @@
-<h2>ProcessRolesController#new</h2>
+<h2><%= link_to l(:label_process_plural), {:controller => :process_workflows, :action => :index } %> &#187; <%= link_to @tracker.name, {:controller => :process_workflows, :action => :edit, :id => @tracker.id } %> &#187; <%= l(:label_role_new) %> </h2>
+
+<%= labelled_form_for [@tracker, @role] do |f| %>
+  <%= render :partial => 'process_roles/form', :locals => { :f => f } %>
+  <%= f.submit %>
+<% end %>

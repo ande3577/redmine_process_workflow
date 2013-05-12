@@ -1,0 +1,5 @@
+<div class="box tabular">
+<p><%= f.text_field 'name', {:required => true} %></p>
+<p><%= f.select :issue_status_id, (IssueStatus.sorted.all.collect {|p| [p.name, p.id]}), {:required => true} %></p>
+<p><%= f.select :process_role_id, (@tracker.process_roles.all.collect {|p| [p.name, p.id]}), {:include_blank => true} %></p>
+</div>

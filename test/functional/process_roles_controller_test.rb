@@ -19,7 +19,7 @@ class ProcessRolesControllerTest < ActionController::TestCase
   end
   
   def test_index
-    get :index, :id => @tracker.id
+    get :index, :tracker_id => @tracker.id
     assert_response 200
     
     assert assigns(:roles)
@@ -28,7 +28,7 @@ class ProcessRolesControllerTest < ActionController::TestCase
   end
   
   def test_new
-    get :new, :id => @tracker.id
+    get :new, :tracker_id => @tracker.id
     assert_response 200
     
     role = assigns(:role)
@@ -43,13 +43,17 @@ class ProcessRolesControllerTest < ActionController::TestCase
     role = assigns(:role)
     assert role
     assert_equal @role, role
+    
+    tracker = assigns(:tracker)
+    assert tracker
+    assert_equal @tracker, tracker
   end
   
   def test_create
     assert_difference 'ProcessRole.count' do
-          post :create, :id => @tracker.id, :process_role => { :name => 'New role' }
+          post :create, :tracker_id => @tracker.id, :process_role => { :name => 'New role' }
     end
-    assert_redirected_to :controller => :process, :action => 'edit', :id => @tracker.id
+    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => @tracker.id
     role = ProcessRole.last
     assert_equal 'New role', role.name
     assert_equal @tracker, @role.tracker
@@ -57,7 +61,7 @@ class ProcessRolesControllerTest < ActionController::TestCase
   
   def create_without_name
     assert_difference 'ProcessRole.count', 0 do
-          post :create, :id => @tracker.id, :process_role => { :invalid => 'blah' }
+          post :create, :tracker_id => @tracker.id, :process_role => { :invalid => 'blah' }
     end
     assert_response 200
     assert_template :new
@@ -66,7 +70,7 @@ class ProcessRolesControllerTest < ActionController::TestCase
   def test_update
     new_tracker = Tracker.find(2)
     post :update, :id => @role.id, :process_role => { :name => 'New name', :tracker_id => new_tracker.id }
-    assert_redirected_to :controller => :process, :action => 'edit', :id => new_tracker.id
+    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => new_tracker.id
     @role.reload
     assert_equal 'New name', @role.name
     assert_equal new_tracker, @role.tracker
@@ -82,6 +86,6 @@ class ProcessRolesControllerTest < ActionController::TestCase
     assert_difference 'ProcessRole.count', -1 do
       delete :destroy, :id => @role.id
     end
-    assert_redirected_to :controller => :process, :action => 'edit', :id => @tracker.id
+    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => @tracker.id
   end
 end

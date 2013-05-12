@@ -23,7 +23,7 @@ class ProcessStepsControllerTest < ActionController::TestCase
   end
   
   def test_index
-    get :index, :id => @tracker.id
+    get :index, :tracker_id => @tracker.id
     assert_response 200
     assert_equal @tracker, assigns(:tracker)
     
@@ -33,7 +33,7 @@ class ProcessStepsControllerTest < ActionController::TestCase
   end
   
   def test_new
-    get :new, :id => @tracker.id
+    get :new, :tracker_id => @tracker.id
     assert_response 200
     assert assigns(:step)
   end
@@ -43,13 +43,19 @@ class ProcessStepsControllerTest < ActionController::TestCase
     assert_response 200
     assert assigns(:step)
     assert_equal @step, assigns(:step)
+    
+    assert assigns(:tracker)
+    assert_equal @tracker, assigns(:tracker)
+    
+    assert assigns(:fields)
+    assert assigns(:conditions)
   end
   
   def test_create
     assert_difference 'ProcessStep.count' do
-          post :create, :id => @tracker.id, :process_step => { :name => 'New step', :issue_status_id => @status.id, :process_role_id => @role.id }
+          post :create, :tracker_id => @tracker.id, :process_step => { :name => 'New step', :issue_status_id => @status.id, :process_role_id => @role.id }
     end
-    assert_redirected_to :controller => :process, :action => 'edit', :id => @tracker.id
+    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => @tracker.id
     step = ProcessStep.first(:order => 'id DESC')
     assert_equal 'New step', step.name
     assert_equal @status, step.issue_status
@@ -59,7 +65,7 @@ class ProcessStepsControllerTest < ActionController::TestCase
   
   def test_create_without_name
     assert_difference 'ProcessStep.count', 0 do
-          post :create, :id => @tracker.id, :process_step => { :issue_status_id => @status.id, :process_role_id => @role.id }
+          post :create, :tracker_id => @tracker.id, :process_step => { :issue_status_id => @status.id, :process_role_id => @role.id }
     end
     assert_response 200
     assert_template :new
@@ -73,7 +79,7 @@ class ProcessStepsControllerTest < ActionController::TestCase
     
     flash[:notice] = nil
     post :update, :id => @step.id, :process_step => { :name => 'Updated name', :issue_status_id => new_status.id, :tracker_id => new_tracker.id, :process_role_id => new_role.id }
-    assert_redirected_to :controller => :process, :action => 'edit', :id => new_tracker.id
+    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => new_tracker.id
     @step.reload
     assert_equal 'Updated name', @step.name
     assert_equal new_status, @step.issue_status
@@ -98,6 +104,6 @@ class ProcessStepsControllerTest < ActionController::TestCase
     assert_difference 'ProcessStep.count', -1 do
       delete :destroy, :id => @step.id
     end
-    assert_redirected_to :controller => :process, :action => 'edit', :id => @tracker.id
+    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => @tracker.id
   end
 end

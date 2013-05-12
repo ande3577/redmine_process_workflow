@@ -1,0 +1,18 @@
+<h2><%= link_to l(:label_process_plural), {:controller => :process_workflows, :action => :index } %> &#187; <%= @tracker.name %></h2>
+
+<div class="box tabular">
+<h3><%= l(:label_role_plural) %></h3>
+
+<%= render :partial => 'process_roles/process_roles', :locals => { :roles => @tracker.process_roles } %> 
+</div>
+<div class="box tabular">
+<h3><%= l(:label_step_plural) %></h3>
+
+<%= render :partial => 'process_steps/process_steps', :locals => { :roles => @tracker.process_steps } %>
+</div>
+
+<%= labelled_form_for @tracker do |f| %>
+  <%= f.hidden_field :process_workflow, :value => '1' %>
+  <%= render :partial => 'trackers/form', :locals => { :f => f, :tracker => @tracker } %>
+<% end %>
+
