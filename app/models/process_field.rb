@@ -24,6 +24,12 @@ class ProcessField < ActiveRecord::Base
   
   validates_presence_of :process_step, :custom_field
   validates :comparison_mode, :inclusion => { :in => %w(none eql? ne?) }
+    
+  after_create do |field|
+    Issue.where(:tracker_id => field.process_step.tracker.id).each do |issue|
+      ProcessAction.create(:process_field => field, :issue => issue)
+    end
+  end
   
   def evaluate(value)
     case comparison_mode
@@ -34,6 +40,10 @@ class ProcessField < ActiveRecord::Base
     when 'ne?'
       return !value.eql?(field_value)
     end
+  end
+  
+  def find_action(issue)
+    ProcessAction.where(:issue_id => issue.id).first
   end
   
 end

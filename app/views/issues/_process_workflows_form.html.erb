@@ -1,0 +1,21 @@
+<% if @issue.tracker.process_workflow %>
+  <% @issue.tracker.process_roles.each do |role| %>
+    <% if role.safe_attribute? 'name' %> 
+      <p>
+        <% member = ProcessMember.where(:process_role_id => role.id, :issue_id => @issue.id).first %>
+        <label><%= role.name %></label><%= select_tag 'role[' + role.name + ']', principals_options_for_select(@issue.assignable_users, member.nil? ? nil : member.user), :include_blank => :true %>
+      </p>
+    <% end %>
+  <% end %>
+  
+  <% unless @issue.process_step.nil? %>
+    <h3><%= @issue.process_step.name %></h3>
+    <% @issue.process_step.process_fields.each do |field| %>
+      <p>
+        <% value = ProcessAction.where(:issue_id => @issue.id, :process_field_id => field.id).first %>
+        <p><%= custom_field_tag_with_label 'process_fields', value, :required => @issue.required_attribute?(field.custom_field_id) %></p>
+      </p>
+    <% end %>  
+  <% end %>
+  
+<% end %>

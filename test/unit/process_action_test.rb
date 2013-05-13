@@ -63,12 +63,12 @@ class ProcessActionTest < ActiveSupport::TestCase
   
   def test_create_without_timestamp
     @action.timestamp = nil
-    assert !@action.save
+    assert @action.save, "allow not timestamp"
   end
   
   def test_create_without_user
     @action.user = nil
-    assert !@action.save
+    assert @action.save, "allow saving with no user"
   end
   
   def test_create_without_issue
@@ -128,5 +128,14 @@ class ProcessActionTest < ActiveSupport::TestCase
     assert @action.apply_action()
     
     assert_equal @next_step, @issue.process_step
+  end
+  
+  def test_custom_field
+    assert_equal @custom_field, @action.custom_field
+    assert_equal @custom_field.id, @action.custom_field_id
+  end
+  
+  def test_custimized
+    assert_equal false, @action.customized
   end
 end

@@ -30,6 +30,11 @@ class IssueTest < ActiveSupport::TestCase
     @step = ProcessStep.new(:name => 'step', :issue_status => @status, :tracker => @tracker, :process_role_id => @role.id)
     assert @step.save
     
+    @custom_field = CustomField.first
+    
+    @field = ProcessField.new(:custom_field => @custom_field, :process_step => @step, :comparison_mode => 'none')
+    assert @field.save
+    
     @next_step = ProcessStep.new(:name => 'next_step', :issue_status => @next_status, :tracker => @tracker, :process_role_id => @next_role.id)
     assert @next_step.save
     
@@ -71,6 +76,8 @@ class IssueTest < ActiveSupport::TestCase
     assert_equal @step, @issue.process_step
     assert_equal @status, @issue.status
     assert_equal @user, @issue.assigned_to
+    
+    assert @field.find_action(@issue)
   end
   
   def test_update_assign_when_changing_member

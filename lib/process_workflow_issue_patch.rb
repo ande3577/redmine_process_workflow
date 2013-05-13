@@ -7,6 +7,7 @@ module ProcessWorkflowIssuePatch
     base.class_eval do
       has_one :process_state
       after_create :init_process
+      after_create :create_actions
     end
   end
   
@@ -37,6 +38,17 @@ module ProcessWorkflowIssuePatch
       return nil if state.nil?
       
       state.process_step
+    end
+    
+    def create_actions
+      if tracker.process_workflow
+        ProcessStep.where(:tracker_id => tracker.id).each do |step|
+          step.process_fields.each do |field|
+            ProcessAction.create(:issue_id => self.id, :process_field_id => field.id)
+          end
+        end
+        
+      end
     end
   end
   

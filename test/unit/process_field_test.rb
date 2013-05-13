@@ -4,9 +4,11 @@ class ProcessFieldTest < ActiveSupport::TestCase
   fixtures :trackers
   fixtures :issue_statuses
   fixtures :custom_fields
+  fixtures :issues
 
   def setup
     @tracker = Tracker.first
+    @issue = Issue.where(:tracker_id => @tracker.id).first
     @status = IssueStatus.first
     @custom_field = CustomField.first
     @step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'step')
@@ -24,6 +26,7 @@ class ProcessFieldTest < ActiveSupport::TestCase
     assert_equal 'value', field.field_value
     assert_equal @step, field.step_if_true
     assert_equal 'eql?', field.comparison_mode
+    assert field.find_action(@issue), "create action when creating new field"
   end
   
   def test_create_without_field_value
@@ -91,4 +94,15 @@ class ProcessFieldTest < ActiveSupport::TestCase
     field = ProcessField.new(:process_step => @step)
     assert !field.save
   end
+  
+  def test_find_action
+    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_true => @step, :comparison_mode => 'eql?')
+    assert field.save
+    field.reload
+    
+    action = ProcessAction.where(:process_field_id => field.id, :issue_id => @issue.id).first
+    
+    assert_equal action, field.find_action(@issue)
+  end
+  
 end

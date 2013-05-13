@@ -1,0 +1,27 @@
+<% if @issue.tracker.process_workflow %>
+  <% @issue.tracker.process_roles.each do |role| %>
+      <tr><td>
+        <b><%= role.name %></b><td><%= ProcessMember.where(:process_role_id => role.id, :issue_id => @issue.id).first.user.name %></td>
+      </tr></td>
+    <% end %>
+  
+  <% @issue.tracker.process_steps.each do |step| %>
+    <tr><td>
+    <h3><%= step.name %></h3>
+    <tr><td>
+      <% step.process_fields.each do |field| %>
+        <p><b><%= field.custom_field.name %></b></td><td>
+        <% action = ProcessAction.where(:issue_id => @issue.id, :process_field_id => field.id).first %>
+        <% unless action.nil? %>
+        <%= action.value %><br>
+        <em>
+        <%= l(:label_updated_time_by, :author => link_to_user(User.where(:id => action.user_id).first), :age => time_tag(action.timestamp)).html_safe %>
+        </em>
+        <% end %></p>
+    </tr></td>
+  <% end %>
+      
+    </tr></td>
+  <% end %>
+  
+<% end %>
