@@ -51,6 +51,8 @@ class IssueTest < ActiveSupport::TestCase
     assert @next_member.save
     
     assert @issue.save
+    
+    @admin = User.where(:admin => true).first
   end
   
   def test_apply_step
@@ -94,6 +96,28 @@ class IssueTest < ActiveSupport::TestCase
     @issue.reload
     
     assert_equal @next_user, @issue.assigned_to
+  end
+  
+  def test_disable_assignee_if_process
+    assert !@issue.safe_attribute?('assigned_to_id', @admin) 
+  end
+  
+  def test_enable_assignee_if_not_process
+    @tracker.process_workflow = false
+    @tracker.save
+    
+    assert @issue.safe_attribute?('assigned_to_id', @admin) 
+  end
+  
+  def test_disable_status_if_process
+    assert !@issue.safe_attribute?('status_id', @admin)
+  end
+  
+  def test_enable_status_if_not_process
+    @tracker.process_workflow = false
+    @tracker.save
+        
+    assert @issue.safe_attribute?('status_id', @admin) 
   end
   
 end

@@ -8,6 +8,7 @@ module ProcessWorkflowIssuePatch
       has_one :process_state
       after_create :init_process
       after_create :create_actions
+      alias_method_chain :safe_attribute?, :process
     end
   end
   
@@ -50,6 +51,15 @@ module ProcessWorkflowIssuePatch
         
       end
     end
+    
+    def safe_attribute_with_process?(attr, user=nil)
+      if self.tracker.process_workflow? && ((attr == 'assigned_to_id') || (attr == 'status_id'))
+        return false
+      else
+        return safe_attribute_without_process?(attr, user)        
+      end
+    end
+    
   end
   
   private
