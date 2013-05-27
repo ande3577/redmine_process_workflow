@@ -12,7 +12,7 @@
       <% step.process_fields.each do |field| %>
         <p><b><%= field.custom_field.name %></b></td><td>
         <% action = ProcessAction.where(:issue_id => @issue.id, :process_field_id => field.id).first %>
-        <% unless action.nil? %>
+        <% if !action.nil? && !action.user_id.nil?%>
         <%= action.value %><br>
         <em>
         <%= l(:label_updated_time_by, :author => link_to_user(User.where(:id => action.user_id).first), :age => time_tag(action.timestamp)).html_safe %>
