@@ -4,6 +4,9 @@ require_dependency 'process_workflow_hooks'
 
 Redmine::Plugin.register :redmine_process_workflow do
   menu :admin_menu, :redmine_process_workflow, { :controller => :process_workflows, :action => :index }, :caption => :processes
+  project_module :issue_tracking do
+    permission :set_process_step, :issues => :set_step
+  end
   
   name 'Redmine Process Workflow plugin'
   author 'David S Anderson'

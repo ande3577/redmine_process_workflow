@@ -8,6 +8,13 @@
     <% end %>
   <% end %>
   
+  <% if User.current.allowed_to?(:set_process_step, @project, :global => false ) %>
+    <p>
+      <label><%= l(:label_step) %></label>
+      <%= select_tag 'process_step', principals_options_for_select(@issue.tracker.process_steps, issue.process_step) %>
+    </p>
+  <% end %>
+  
   <% unless @issue.process_step.nil? %>
     <h3><%= @issue.process_step.name %></h3>
     <% @issue.process_step.process_fields.each do |field| %>

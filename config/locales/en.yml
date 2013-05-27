@@ -4,6 +4,7 @@ en:
   label_process_plural: "Processes"
   label_process_new: "New Process"
   label_process: "Process"
+  label_step: "Step"
   label_step_plural: "Steps"
   label_step_new: "New Step"
   field_issue_status: "Status"

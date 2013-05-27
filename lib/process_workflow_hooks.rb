@@ -5,7 +5,9 @@ class ProcessWorkflowHooks < Redmine::Hook::ViewListener
   def controller_issues_edit_after_save( context = { } )
     if context[:issue].tracker.process_workflow
       issue_update_roles(context[:issue], context[:params])
-      issue_handle_process_fields(context[:issue], context[:params])
+      if !issue_handle_step(context[:issue], context[:params])
+        issue_handle_process_fields(context[:issue], context[:params])
+      end
     end
   end
   
@@ -29,6 +31,15 @@ class ProcessWorkflowHooks < Redmine::Hook::ViewListener
         end
       end
     end
+  end
+  
+  def issue_handle_step(issue, params)
+    step = ProcessStep.where(:id => params[:process_step]).first unless params[:process_step].nil?
+    if !step.nil? && (step != issue.process_step) 
+      issue.apply_process_step_change(step)
+      return true
+    end
+    false
   end
   
   def issue_handle_process_fields(issue, params)
