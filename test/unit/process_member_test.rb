@@ -20,6 +20,16 @@ class ProcessMemberTest < ActiveSupport::TestCase
     assert_equal @issue, member.issue
   end
   
+  def test_delete_issue
+    member = ProcessMember.new(:process_role => @process_role, :user => @user, :issue => @issue)
+    assert member.save
+    
+    issue_id = @issue.id
+    @issue.destroy
+    
+    assert ProcessMember.where(:issue_id => issue_id).empty?
+  end
+  
   def test_create_without_process_role
     member = ProcessMember.new(:user => @user, :issue => @issue)
     assert !member.save

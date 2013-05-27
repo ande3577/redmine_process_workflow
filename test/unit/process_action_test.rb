@@ -50,6 +50,12 @@ class ProcessActionTest < ActiveSupport::TestCase
     assert_equal @issue, @action.issue
   end
   
+  def test_destroy_issue
+    issue_id = @issue.id
+    @issue.destroy
+    assert ProcessAction.where(:issue_id => issue_id).empty?
+  end
+  
   def test_create_without_process_field
     @action.process_field = nil
     assert !@action.save

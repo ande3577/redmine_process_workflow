@@ -5,7 +5,9 @@ module ProcessWorkflowIssuePatch
     base.extend(ClassMethods)
     base.send(:include, InstanceMethods)
     base.class_eval do
-      has_one :process_state
+      has_one :process_state, :dependent => :destroy
+      has_many :process_actions, :dependent => :destroy
+      has_many :process_members, :dependent => :destroy
       after_create :init_process
       after_create :create_actions
       alias_method_chain :safe_attribute?, :process
