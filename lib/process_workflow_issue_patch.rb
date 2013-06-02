@@ -11,6 +11,7 @@ module ProcessWorkflowIssuePatch
       after_create :init_process
       after_create :create_actions
       alias_method_chain :safe_attribute?, :process
+      after_save {|issue| issue.send :after_tracker_change if !issue.id_changed? && issue.tracker_id_changed?}
     end
   end
   
@@ -69,6 +70,16 @@ module ProcessWorkflowIssuePatch
   def init_process
     if self.tracker.process_workflow?
       apply_process_step_change(self.tracker.process_steps.first)
+    end
+  end
+  
+  def after_tracker_change
+    if self.tracker.process_workflow?
+      apply_process_step_change(self.tracker.process_steps.first)
+    else
+      ProcessState.destroy_all(:issue_id => self.id)
+      ProcessAction.destroy_all(:issue_id => self.id)
+      ProcessMember.destroy_all(:issue_id => self.id)
     end
   end
   

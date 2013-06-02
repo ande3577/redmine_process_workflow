@@ -8,7 +8,8 @@ class ProcessStep < ActiveRecord::Base
   acts_as_list :scope => :tracker
   
   belongs_to :issue_status
-  has_many :process_fields
+  has_many :process_fields, :dependent => :destroy
+  has_many :process_states, :dependent => :destroy
 
   validates_presence_of :tracker, :issue_status
   validates :name, :length => { :minimum => 1 }

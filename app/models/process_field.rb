@@ -20,7 +20,7 @@ class ProcessField < ActiveRecord::Base
   belongs_to :step_if_false, :class_name => 'ProcessStep', :foreign_key => 'step_if_false_id'
   validates_with NextStepValidator
   
-  has_many :process_actions
+  has_many :process_actions, :dependent => :destroy
   
   validates_presence_of :process_step, :custom_field
   validates :comparison_mode, :inclusion => { :in => %w(none eql? ne?) }

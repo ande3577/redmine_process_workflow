@@ -5,7 +5,7 @@ class ProcessAction < ActiveRecord::Base
   
   belongs_to :issue
   belongs_to :process_field
-  has_one :user
+  belongs_to :user
   
   validates_presence_of :issue, :process_field
   

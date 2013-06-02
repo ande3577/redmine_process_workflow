@@ -28,6 +28,8 @@ class ProcessActionTest < ActiveSupport::TestCase
     assert @field.save
     
     @user = User.find(2)
+    assert @user.save
+    
     @issue = Issue.first
     assert @issue.save
     
@@ -35,7 +37,7 @@ class ProcessActionTest < ActiveSupport::TestCase
     assert @process_state.save
     
     @timestamp = Time.now
-    
+
     @action = ProcessAction.new(:process_field => @field, :value => 'value', :timestamp => @timestamp, :user => @user, :issue => @issue)
   end
   
@@ -54,6 +56,31 @@ class ProcessActionTest < ActiveSupport::TestCase
     issue_id = @issue.id
     @issue.destroy
     assert ProcessAction.where(:issue_id => issue_id).empty?
+  end
+  
+  def test_destroy_user
+    assert @action.save
+    
+    assert_equal @user, @action.user
+    @user.destroy
+    @action.reload
+    assert_equal User.anonymous, @action.user
+  end
+  
+  def test_destroy_field
+    assert @action.save
+    
+    id = @field.id
+    @field.destroy
+    assert ProcessAction.where(:process_field_id => id).empty?
+  end
+  
+  def test_change_issue_tracker
+    assert @action.save
+    
+    @issue.tracker = Tracker.last
+    assert @issue.save
+    assert ProcessAction.where(:issue_id => @issue.id).empty?
   end
   
   def test_create_without_process_field

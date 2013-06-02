@@ -18,6 +18,17 @@ class ProcessRoleTest < ActiveSupport::TestCase
     assert_equal @tracker, role.tracker
     assert_equal 'name', role.name
   end
+
+  def test_destroy_trackerr
+    tracker = Tracker.new(:name => 'new_tracker')
+    assert tracker.save
+    role = ProcessRole.new(:tracker => tracker, :name => 'name')
+    assert role.save
+
+    id = tracker.id
+    tracker.destroy
+    assert ProcessRole.where(:tracker_id => id).empty?    
+  end
   
   def test_create_no_tracker
     role = ProcessRole.new(:name => 'name')

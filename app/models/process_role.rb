@@ -6,7 +6,7 @@ class ProcessRole < ActiveRecord::Base
   safe_attributes 'name'
   
   belongs_to :tracker
-  has_many :process_members
+  has_many :process_members, :dependent => :destroy
   
   validates_presence_of :tracker
   validates :name, :length => { :minimum => 1 }

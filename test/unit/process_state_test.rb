@@ -30,6 +30,23 @@ class ProcessStateTest < ActiveSupport::TestCase
     assert ProcessState.where(:issue_id => issue_id).empty?
   end
   
+  def test_change_issue_tracker
+    assert @state.save
+    
+    @issue.tracker = Tracker.last
+    assert @issue.save
+    assert ProcessState.where(:issue_id => @issue.id).empty?
+  end
+  
+  def test_destroy_step
+    assert @state.save
+    
+    id = @step.id
+    @step.destroy
+    
+    assert ProcessState.where(:process_step_id => id).empty?
+  end
+  
   def test_create_without_issue
     @state.issue = nil
     assert !@state.save

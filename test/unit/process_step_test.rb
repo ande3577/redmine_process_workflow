@@ -18,6 +18,27 @@ class ProcessStepTest < ActiveSupport::TestCase
     assert_equal @tracker, step.tracker
   end
   
+  def test_destroy_status
+    new_status = IssueStatus.new(:name => 'new_status')
+    step = ProcessStep.new(:name => 'name', :issue_status => new_status, :tracker => @tracker)
+    assert step.save
+    
+    id = new_status.id
+    new_status.destroy
+    assert ProcessStep.where(:issue_status_id => id).empty?
+  end
+  
+  def test_destroy_tracker
+    new_tracker = Tracker.new(:name => 'new_tracker')
+    assert new_tracker.save
+    step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => new_tracker)
+    assert step.save
+    
+    id = new_tracker.id
+    new_tracker.destroy
+    assert ProcessStep.where(:tracker_id => id).empty?
+  end
+  
   def test_create_without_tracker
     step = ProcessStep.new(:name => 'name', :issue_status => @status)
     assert !step.save

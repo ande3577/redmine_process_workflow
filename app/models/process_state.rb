@@ -12,4 +12,5 @@ class ProcessState < ActiveRecord::Base
   validates_uniqueness_of :issue_id
   
   validates_presence_of :process_step
+
 end

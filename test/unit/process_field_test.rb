@@ -29,6 +29,38 @@ class ProcessFieldTest < ActiveSupport::TestCase
     assert field.find_action(@issue), "create action when creating new field"
   end
   
+  def test_destroy_step
+    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_true => @step, :comparison_mode => 'eql?')
+    assert field.save
+    field.reload
+
+    id = @step.id
+    @step.destroy
+    assert ProcessField.where(:process_step_id => id).empty?    
+  end
+  
+  def test_destroy_step_if_true
+    next_step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'step')
+    assert next_step.save
+    
+    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_true => next_step, :comparison_mode => 'eql?')
+    assert field.save
+    field.reload
+    
+    next_step.destroy
+    assert field.step_if_true.nil?
+  end
+  
+  def test_destroy_custom_field
+    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_true => @step, :comparison_mode => 'eql?')
+    assert field.save
+    field.reload
+
+    id = @custom_field.id
+    @custom_field.destroy
+    assert ProcessField.where(:custom_field_id => id).empty?   
+  end
+  
   def test_create_without_field_value
     field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :step_if_true => @step, :comparison_mode => 'eql?')
     assert field.save, "allow creating with blank value"

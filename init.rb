@@ -1,5 +1,8 @@
 require_dependency 'process_workflow_tracker_patch'
 require_dependency 'process_workflow_issue_patch'
+require_dependency 'process_workflow_user_patch'
+require_dependency 'process_workflow_custom_field_patch'
+require_dependency 'process_workflow_issue_status_patch'
 require_dependency 'process_workflow_hooks'
 
 Redmine::Plugin.register :redmine_process_workflow do
