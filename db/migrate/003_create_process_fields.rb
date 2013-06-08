@@ -7,6 +7,7 @@ class CreateProcessFields < ActiveRecord::Migration
       t.string :field_value
       t.integer :step_if_true_id
       t.integer :step_if_false_id
+      t.integer :position
     end
   end
 end

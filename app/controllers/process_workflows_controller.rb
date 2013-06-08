@@ -17,8 +17,8 @@ class ProcessWorkflowsController < ApplicationController
   end
   
   def edit
-    @steps = ProcessStep.where(:tracker_id => @tracker.id)
-    @roles = ProcessRole.where(:tracker_id => @tracker.id)
+    @steps = ProcessStep.where(:tracker_id => @tracker.id).order('position ASC').all
+    @roles = @tracker.process_roles
     
     respond_to do |format|
       format.html

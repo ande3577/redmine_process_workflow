@@ -82,6 +82,26 @@ class IssueTest < ActiveSupport::TestCase
     assert @field.find_action(@issue)
   end
   
+  def test_sort_steps
+    @next_step.move_to_top
+    @next_step.save
+    
+    new_issue = Issue.new(:project_id => 1, :tracker => @tracker, :author_id => 3,
+    :status_id => 1, :priority => IssuePriority.all.first,
+    :subject => 'test_sort_steps',
+    :description => 'IssueTest#test_sort_steps', :estimated_hours => '1:30')
+    
+    new_member = ProcessMember.new(:process_role => @next_role, :user => @next_user, :issue => new_issue)
+    assert new_member.save
+    
+    assert new_issue.save
+    new_issue.reload
+    
+    assert_equal @next_step, new_issue.process_step
+    assert_equal @next_status, new_issue.status
+    assert_equal @next_user, new_issue.assigned_to
+  end
+  
   def test_update_assign_when_changing_member
     @member.user = @next_user
     @member.save

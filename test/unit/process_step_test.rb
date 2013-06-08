@@ -18,6 +18,18 @@ class ProcessStepTest < ActiveSupport::TestCase
     assert_equal @tracker, step.tracker
   end
   
+  def test_position
+    step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => @tracker)
+    assert step.save
+    
+    new_step = ProcessStep.new(:name => 'new_step', :issue_status => @status, :tracker => @tracker)
+    assert new_step.save
+    
+    new_step.move_to_top
+    
+    assert_equal new_step, @tracker.process_steps.first
+  end
+  
   def test_destroy_status
     new_status = IssueStatus.new(:name => 'new_status')
     step = ProcessStep.new(:name => 'name', :issue_status => new_status, :tracker => @tracker)

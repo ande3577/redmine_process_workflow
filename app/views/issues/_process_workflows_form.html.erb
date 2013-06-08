@@ -17,7 +17,7 @@
   
   <% unless @issue.process_step.nil? %>
     <h3><%= @issue.process_step.name %></h3>
-    <% @issue.process_step.process_fields.each do |field| %>
+    <% @issue.process_step.process_fields.order("position ASC").each do |field| %>
       <p>
         <% value = ProcessAction.where(:issue_id => @issue.id, :process_field_id => field.id).first %>
         <p><%= custom_field_tag_with_label 'process_fields', value, :required => @issue.required_attribute?(field.custom_field_id) %></p>

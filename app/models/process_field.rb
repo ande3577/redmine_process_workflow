@@ -11,7 +11,7 @@ class ProcessField < ActiveRecord::Base
   
   include Redmine::SafeAttributes
   
-  safe_attributes 'custom_field_id', 'comparison_mode', 'field_value', 'step_if_true_id', 'step_if_false_id'
+  safe_attributes 'custom_field_id', 'comparison_mode', 'field_value', 'step_if_true_id', 'step_if_false_id', 'move_to'
   
   belongs_to :process_step 
   belongs_to :custom_field
@@ -24,7 +24,9 @@ class ProcessField < ActiveRecord::Base
   
   validates_presence_of :process_step, :custom_field
   validates :comparison_mode, :inclusion => { :in => %w(none eql? ne?) }
-    
+  
+  acts_as_list :scope => :process_step  
+
   after_create do |field|
     Issue.where(:tracker_id => field.process_step.tracker.id).each do |issue|
       ProcessAction.create(:process_field => field, :issue => issue)

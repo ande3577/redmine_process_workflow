@@ -6,7 +6,7 @@ class ProcessStepsController < ApplicationController
   before_filter :find_step, :only => [ :edit, :update, :destroy ] 
 
   def index
-    @steps = ProcessStep.where(:tracker_id => @tracker.id)
+    @steps = ProcessStep.where(:tracker_id => @tracker.id).order('position ASC').all
   end
 
   def new
@@ -14,7 +14,7 @@ class ProcessStepsController < ApplicationController
   end
 
   def edit
-    @fields = @step.process_fields
+    @fields = ProcessField.where(:process_step_id => @step.id).order('position ASC').all
   end
 
   def create

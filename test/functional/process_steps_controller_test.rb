@@ -32,6 +32,19 @@ class ProcessStepsControllerTest < ActionController::TestCase
     assert_equal @step, assigns(:steps).first
   end
   
+  def test_sorted
+    
+    new_step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => @tracker)
+    assert new_step.save
+    
+    new_step.move_to_top
+    
+    get :index, :tracker_id => @tracker.id
+    assert_response 200
+    assert_equal 2, assigns(:steps).size
+    assert_equal new_step, assigns(:steps).first
+  end
+  
   def test_new
     get :new, :tracker_id => @tracker.id
     assert_response 200

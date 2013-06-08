@@ -74,6 +74,21 @@ class ProcessWorkflowsControllerTest < ActionController::TestCase
     assert_equal @role, assigns(:roles).first
   end
   
+  def test_edit_sorted
+    
+    new_step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => @tracker)
+    assert new_step.save
+    
+    new_step.move_to_top
+    @tracker.reload
+    
+    @request.session[:user_id] = @admin.id
+    get :edit, :id => @tracker.id
+    assert_response 200
+    assert_equal 2, assigns(:steps).size
+    assert_equal new_step, assigns(:steps).first
+  end
+  
   def test_create_without_name
     @request.session[:user_id] = @admin.id
 

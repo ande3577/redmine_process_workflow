@@ -2,7 +2,7 @@ class ProcessStep < ActiveRecord::Base
   include Redmine::SafeAttributes
   unloadable
   
-  safe_attributes 'process_role_id', 'issue_status_id', 'position', 'name'
+  safe_attributes 'process_role_id', 'issue_status_id', 'name', 'move_to'
   
   belongs_to :tracker
   acts_as_list :scope => :tracker
