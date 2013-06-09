@@ -4,6 +4,7 @@ require_dependency 'process_workflow_user_patch'
 require_dependency 'process_workflow_custom_field_patch'
 require_dependency 'process_workflow_issue_status_patch'
 require_dependency 'process_workflow_hooks'
+require_dependency 'process_workflow_issues_helper_patch'
 
 Redmine::Plugin.register :redmine_process_workflow do
   menu :admin_menu, :redmine_process_workflow, { :controller => :process_workflows, :action => :index }, :caption => :processes
