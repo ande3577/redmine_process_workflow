@@ -11,7 +11,7 @@
   <% if User.current.allowed_to?(:set_process_step, @project, :global => false ) %>
     <p>
       <label><%= l(:label_step) %></label>
-      <%= select_tag 'process_step', options_from_collection_for_select(@issue.tracker.process_steps, 'id', 'name', issue.process_step) %>
+      <%= select_tag 'process_step', options_from_collection_for_select(@issue.tracker.process_steps, 'id', 'name', issue.process_step.id) %>
     </p>
   <% end %>
   
