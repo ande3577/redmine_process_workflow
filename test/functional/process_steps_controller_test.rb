@@ -83,6 +83,15 @@ class ProcessStepsControllerTest < ActionController::TestCase
     assert_template :new
   end
   
+  def test_create_with_author
+    assert_difference 'ProcessStep.count' do
+          post :create, :tracker_id => @tracker.id, :process_step => { :name => 'New step', :issue_status_id => @status.id, :process_role_id => ProcessStep::AUTHOR }
+    end
+    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => @tracker.id
+    step = ProcessStep.first(:order => 'id DESC')
+    assert step.role_is_author?
+  end
+  
   def test_update
     new_status = IssueStatus.find(2)
     new_tracker = Tracker.find(2)
@@ -99,6 +108,13 @@ class ProcessStepsControllerTest < ActionController::TestCase
     assert_equal new_role, @step.process_role
     assert flash[:notice]
   end
+  
+  def test_update_with_author
+     post :update, :id => @step.id, :process_step => { :process_role_id => ProcessStep::AUTHOR }
+     assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => @tracker.id
+     @step.reload
+     assert @step.role_is_author?
+   end
   
   def test_update_with_invalid_status_id
     new_status = IssueStatus.find(2)

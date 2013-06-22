@@ -31,8 +31,14 @@ module ProcessWorkflowIssuePatch
       return false unless state.save
       
       self.status = step.issue_status
-      next_member = ProcessMember.where(:issue_id => self.id, :process_role_id => step.process_role_id).first unless step.process_role.nil?
-      next_assignee = next_member.user unless next_member.nil?
+      
+      if step.role_is_author?
+        next_assignee = self.author
+      else
+        next_member = ProcessMember.where(:issue_id => self.id, :process_role_id => step.process_role_id).first unless step.process_role.nil?
+        next_assignee = next_member.user unless next_member.nil?
+      end
+      
       self.assigned_to = next_assignee unless next_assignee.nil?
       return save
     end

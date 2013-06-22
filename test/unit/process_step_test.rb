@@ -81,4 +81,12 @@ class ProcessStepTest < ActiveSupport::TestCase
         
     assert_equal role, step.process_role
   end
+  
+  def test_role_is_author
+    step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => @tracker, :process_role_id => ProcessStep::AUTHOR)
+    assert step.save
+    step.reload
+            
+    assert_equal true, step.role_is_author?
+  end
 end

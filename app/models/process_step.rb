@@ -2,6 +2,8 @@ class ProcessStep < ActiveRecord::Base
   include Redmine::SafeAttributes
   unloadable
   
+  AUTHOR = -1
+  
   safe_attributes 'process_role_id', 'issue_status_id', 'name', 'move_to'
   
   belongs_to :tracker
@@ -37,6 +39,14 @@ class ProcessStep < ActiveRecord::Base
           state.issue.save
         end
       end
+    end
+  end
+  
+  def role_is_author?
+    if self.process_role_id == AUTHOR
+      return true
+    else
+      return false
     end
   end
   

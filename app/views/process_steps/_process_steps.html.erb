@@ -17,7 +17,7 @@
     <tr class="<%= cycle 'odd', 'even' %>">
       <td align="center"><%= step.name %></td>
       <td align="center"><%= step.issue_status.to_s %>
-      <td align="center"><%= step.process_role.nil? ? l(:label_none) : step.process_role.name %>
+      <td align="center"><%= role_name(step) %>
       <td align="center" style="width:15%;"><%= reorder_links('process_step', {:controller => 'process_steps', :action => 'update', :id => step}, :put) %></td>
       <td class="buttons"><%= link_to l(:button_edit), { :controller => 'process_steps', :action => 'edit', :id => step.id }, {:class => 'icon icon-edit'} %></td>
       <td class="buttons"><%= delete_link step %></td>

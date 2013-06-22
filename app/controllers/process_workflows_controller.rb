@@ -6,6 +6,8 @@ class ProcessWorkflowsController < ApplicationController
   before_filter :find_projects
   before_filter :find_tracker, :except => [ :index, :new, :create ]
 
+  helper :process_steps
+    
   def index
     respond_to do |format|
       format.html

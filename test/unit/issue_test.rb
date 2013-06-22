@@ -74,6 +74,15 @@ class IssueTest < ActiveSupport::TestCase
     assert_equal @user, @issue.assigned_to
   end
   
+  def test_apply_step_with_author
+    @next_step.process_role_id = ProcessStep::AUTHOR
+    assert @next_step.save
+    
+    assert @issue.apply_process_step_change(@next_step)
+    
+    assert_equal @issue.author_id, @issue.assigned_to_id
+  end
+  
   def test_create
     assert_equal @step, @issue.process_step
     assert_equal @status, @issue.status
