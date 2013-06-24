@@ -1,7 +1,7 @@
 # Plugin's routes
 # See: http://guides.rubyonrails.org/routing.html
 
-resources 'process_workflows', :only => [ :index, :new, :create, :edit ]
+resources 'process_workflows', :only => [ :index, :new, :create, :edit, :update]
 
 resources 'trackers', :only => [] do
   resources 'process_steps', :only => [:index, :new, :create]

@@ -40,6 +40,16 @@ class ProcessWorkflowsController < ApplicationController
     end
   end
   
+  def update
+    if @tracker.update_attributes(params[:tracker])
+      flash[:notice] = l(:notice_successful_update)
+      redirect_to :action => :index
+      return
+    end
+    edit
+    render :action => 'edit'
+  end
+  
 private  
   def find_trackers
     @trackers = []

@@ -11,7 +11,7 @@
 <%= render :partial => 'process_steps/process_steps', :locals => { :roles => @tracker.process_steps } %>
 </div>
 
-<%= labelled_form_for @tracker do |f| %>
+<%= labelled_form_for @tracker, :url => url_for(:controller => :process_workflows, :action => :update) do |f| %>
   <%= f.hidden_field :process_workflow, :value => '1' %>
   <%= render :partial => 'trackers/form', :locals => { :f => f, :tracker => @tracker } %>
 <% end %>
