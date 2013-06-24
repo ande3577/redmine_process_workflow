@@ -20,7 +20,7 @@ module ProcessWorkflowIssuePatch
   
   module InstanceMethods
     def apply_process_step_change(step)
-      return false if step.nil?
+      return true if step.nil?
       
       state = self.process_state
       if state.nil?

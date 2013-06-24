@@ -24,7 +24,7 @@ class ProcessActionTest < ActiveSupport::TestCase
     @next_step = ProcessStep.new(:name => 'next_step', :issue_status => @next_status, :tracker => @tracker)
     assert @next_step.save
     
-    @field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :comparison_mode => 'none')
+    @field = ProcessField.new(:process_step => @step, :custom_field => @custom_field)
     assert @field.save
     
     @user = User.find(2)
@@ -109,54 +109,10 @@ class ProcessActionTest < ActiveSupport::TestCase
     assert !@action.save
   end
   
-  def test_apply_action_no_condition
-    @action.save
-    assert @action.apply_action()
-    
-    assert_equal @step, @issue.process_step
-  end
-  
-  def test_apply_action_no_change
-    @field.field_value = 'mismatched_value'
-    @field.step_if_true = @step
-    @field.comparison_mode = 'eql?'
-    @field.save
-    
-    @action.save
-    assert @action.apply_action()
-    
-    assert_equal @step, @issue.process_step
-  end
-  
-  def test_apply_action_change_status
-    @field.field_value = 'value'
-    @field.step_if_true = @next_step
-    @field.comparison_mode = 'eql?'
-    @field.save
-    
-    @action.save
-    assert @action.apply_action()
-    
-    assert_equal @next_step, @issue.process_step
-  end
-  
-  def test_apply_no_change_false_condition
-    @field.field_value = 'value'
-    @field.step_if_false = @step
-    @field.comparison_mode = 'ne?'
-    @field.save
-    
-    @action.save
-    assert @action.apply_action()
-    assert_equal @step, @issue.process_step
-  end
-  
-  def test_apply_action_change_status_false_condition
-    @field.field_value = 'value'
-    @field.step_if_false = @next_step
-    @field.comparison_mode = 'ne?'
-    @field.save
-    
+  def test_apply_action_change_step
+    condition = ProcessCondition.new(:process_field => @field, :comparison_mode => 'eql?', :comparison_value => 'value', :step_if_true => @next_step)
+    assert condition.save
+
     @action.save
     assert @action.apply_action()
     

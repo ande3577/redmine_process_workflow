@@ -12,7 +12,12 @@ resources 'process_steps', :only => [:edit, :update, :destroy] do
   resources 'process_fields', :only => [:index, :new, :create]
 end
 
-resources 'process_fields', :only => [:edit, :update, :destroy]
+resources 'process_fields', :only => [:edit, :update, :destroy] do
+  resources 'process_conditions', :only => [:index, :new, :create]
+end
+
+resources 'process_conditions', :only => [:edit, :update, :destroy]
+  
   
 resources 'process_roles', :only => [:edit, :update, :destroy]
  

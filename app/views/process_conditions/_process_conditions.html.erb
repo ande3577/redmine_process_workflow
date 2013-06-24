@@ -1,0 +1,29 @@
+<%= link_to l(:label_condition_new), { :controller => :process_conditions, :action => :new, :process_field_id => field.id }, :class => 'icon icon-add' %>
+
+<% if @conditions.empty? %>
+  <p class="nodata"><%= l(:label_no_data) %></p>
+<% else %>
+  <table class="list">
+    <thead><tr>
+    <th><%=l(:field_comparison_mode)%></th>
+    <th><%=l(:field_comparison_value)%></th>
+    <th><%=l(:field_step_if_true)%></th>
+    <th><%=l(:field_step_if_false)%></th>
+    <th></th>
+    <th></th>
+    <th></th>
+    </tr></thead>
+    <tbody>
+  <% @conditions.each do |condition| %>
+    <tr class="<%= cycle 'odd', 'even' %>">
+      <td align="center"><%= condition.comparison_mode %>
+      <td align="center"><%= condition.comparison_value %>
+      <td align="center"><%= condition.step_if_true.name if condition.step_if_true %>
+      <td align="center"><%= condition.step_if_false.name if condition.step_if_false %>
+      <td align="center" style="width:15%;"><%= reorder_links('process_field', {:controller => 'process_conditions', :action => 'update', :id => condition}, :put) %></td>
+      <td class="buttons"><%= link_to l(:button_edit), { :controller => 'process_conditions', :action => 'edit', :id => condition }, {:class => 'icon icon-edit'} %></td>
+      <td class="buttons"><%= delete_link field %></td>
+    </tr>
+  <% end %>
+  </table>
+<% end %>

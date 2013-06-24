@@ -13,8 +13,10 @@ class ProcessFieldsControllerTest < ActionController::TestCase
     
     @step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'step')
     assert @step.save
-    @field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :comparison_mode => 'none')
+    @field = ProcessField.new(:process_step => @step, :custom_field => @custom_field)
     assert @field.save
+    @condition = ProcessCondition.new(:process_field => @field, :comparison_mode => 'eql?', :comparison_value => 'value', :step_if_true => @step)
+    assert @condition.save
     
     @admin = User.where(:admin => true).first
     @request.session[:user_id] = @admin.id
@@ -50,24 +52,16 @@ class ProcessFieldsControllerTest < ActionController::TestCase
     field = assigns(:field)
     assert field
     assert_equal @field, field
+    
+    conditions = assigns(:conditions)
+    assert conditions
+    assert_equal @condition, conditions.first
   end
   
   def test_create
     new_custom_field = CustomField.find(2)
     assert_difference 'ProcessField.count' do
-          post :create, :process_step_id => @step.id, :process_field => { :custom_field_id => new_custom_field.id, :comparison_mode => 'none' }
-    end
-    assert_redirected_to :controller => :process_steps, :action => :edit, :id => @step.id
-    
-    new_field = ProcessField.last
-    assert_equal @step, new_field.process_step
-    assert_equal new_custom_field, new_field.custom_field
-  end
-  
-  def test_create_comparison_mode
-    new_custom_field = CustomField.find(2)
-    assert_difference 'ProcessField.count' do
-          post :create, :process_step_id => @step.id, :process_field => { :custom_field_id => new_custom_field.id, :comparison_mode => 'eql?', :step_if_true_id => @step.id }
+          post :create, :process_step_id => @step.id, :process_field => { :custom_field_id => new_custom_field.id }
     end
     assert_redirected_to :controller => :process_steps, :action => :edit, :id => @step.id
     

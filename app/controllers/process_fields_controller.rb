@@ -4,6 +4,7 @@ class ProcessFieldsController < ApplicationController
   before_filter :require_admin
   before_filter :find_step, :except => [ :edit, :update, :destroy ]
   before_filter :find_field, :only => [ :edit, :update, :destroy ]
+  before_filter :find_conditions, :only => [ :edit ]
 
   def index
     @fields = @step.process_fields
@@ -72,5 +73,10 @@ class ProcessFieldsController < ApplicationController
       render_404
       return false
     end
+  end
+  
+  def find_conditions
+    @conditions = @field.process_conditions
+    true
   end
 end

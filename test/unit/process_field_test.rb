@@ -17,20 +17,17 @@ class ProcessFieldTest < ActiveSupport::TestCase
   
   # Replace this with your real tests.
   def test_create
-    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_true => @step, :comparison_mode => 'eql?')
+    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field)
     assert field.save
     field.reload
 
     assert_equal @step, field.process_step
     assert_equal @custom_field, field.custom_field
-    assert_equal 'value', field.field_value
-    assert_equal @step, field.step_if_true
-    assert_equal 'eql?', field.comparison_mode
     assert field.find_action(@issue), "create action when creating new field"
   end
   
   def test_destroy_step
-    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_true => @step, :comparison_mode => 'eql?')
+    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field)
     assert field.save
     field.reload
 
@@ -39,20 +36,8 @@ class ProcessFieldTest < ActiveSupport::TestCase
     assert ProcessField.where(:process_step_id => id).empty?    
   end
   
-  def test_destroy_step_if_true
-    next_step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'step')
-    assert next_step.save
-    
-    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_true => next_step, :comparison_mode => 'eql?')
-    assert field.save
-    field.reload
-    
-    next_step.destroy
-    assert field.step_if_true.nil?
-  end
-  
   def test_destroy_custom_field
-    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_true => @step, :comparison_mode => 'eql?')
+    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field)
     assert field.save
     field.reload
 
@@ -61,60 +46,32 @@ class ProcessFieldTest < ActiveSupport::TestCase
     assert ProcessField.where(:custom_field_id => id).empty?   
   end
   
-  def test_create_without_field_value
-    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :step_if_true => @step, :comparison_mode => 'eql?')
-    assert field.save, "allow creating with blank value"
-  end
-  
-  def test_create_without_next_steps
-    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :comparison_mode => 'eql?')
-    assert !field.save
-  end
-  
-  def test_create_without_next_steps_and_comparison_mode
-    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :comparison_mode => 'none')
-    assert field.save, "allow creating without next step if comparison mode none"
-  end
-  
-  def test_create_with_next_step_if_false
-    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_false => @step, :comparison_mode => 'eql?')
-    assert field.save
-    field.reload
-    
-    assert_equal @step, field.step_if_false
-  end
-  
-  def test_comparison_mode
-    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_true => @step)
-    assert !field.save
-    
-    field.comparison_mode = 'invalid'
-    assert !field.save
-    
-    field.comparison_mode = 'none'
+  def test_evaluate
+    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field)
     assert field.save
     
-    field.comparison_mode = 'eql?'
-    assert field.save
+    next_step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'next_step')
+    assert next_step.save
     
-    field.comparison_mode = 'ne?'
-    assert field.save
+    condition = ProcessCondition.new(:process_field => field, :comparison_mode => 'eql?', :comparison_value => 'value', :step_if_true => next_step)
+    assert condition.save
+    
+    assert_equal nil, field.evaluate('another_value')
+    assert_equal next_step, field.evaluate('value')
   end
   
-  def test_evaluate_eql
-    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_true => @step, :comparison_mode => 'eql?')
+  def test_evaluate_step_if_false
+    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field)
     assert field.save
     
-    assert !field.evaluate('another_value')
-    assert field.evaluate('value')
-  end
-  
-  def test_evaluate_ne
-    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_true => @step, :comparison_mode => 'ne?')
-    assert field.save
+    next_step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'next_step')
+    assert next_step.save
     
-    assert !field.evaluate('value')
-    assert field.evaluate('!value')
+    condition = ProcessCondition.new(:process_field => field, :comparison_mode => 'eql?', :comparison_value => 'value', :step_if_false => next_step)
+    assert condition.save
+    
+    assert_equal next_step, field.evaluate('another_value')
+    assert_equal nil, field.evaluate('value')
   end
   
   def test_create_without_step
@@ -128,7 +85,7 @@ class ProcessFieldTest < ActiveSupport::TestCase
   end
   
   def test_find_action
-    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field, :field_value => 'value', :step_if_true => @step, :comparison_mode => 'eql?')
+    field = ProcessField.new(:process_step => @step, :custom_field => @custom_field)
     assert field.save
     field.reload
     

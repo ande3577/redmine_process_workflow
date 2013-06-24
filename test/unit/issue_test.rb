@@ -32,7 +32,7 @@ class IssueTest < ActiveSupport::TestCase
     
     @custom_field = CustomField.first
     
-    @field = ProcessField.new(:custom_field => @custom_field, :process_step => @step, :comparison_mode => 'none')
+    @field = ProcessField.new(:custom_field => @custom_field, :process_step => @step)
     assert @field.save
     
     @next_step = ProcessStep.new(:name => 'next_step', :issue_status => @next_status, :tracker => @tracker, :process_role_id => @next_role.id)
@@ -62,6 +62,14 @@ class IssueTest < ActiveSupport::TestCase
     assert_equal @next_status, @issue.status
     assert_equal @next_user, @issue.assigned_to
   end
+  
+  def test_apply_step_nil
+    assert @issue.apply_process_step_change(nil)
+    
+    assert_equal @step, @issue.process_step
+  end
+  
+  
   
   def test_apply_step_without_role
     @next_step.process_role = nil
