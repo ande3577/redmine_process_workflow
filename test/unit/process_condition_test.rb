@@ -142,4 +142,20 @@ class ProcessConditionTest < ActiveSupport::TestCase
     assert !@condition.evaluate('value')   
   end
   
+  def test_evaluate_regex_true
+    @condition.comparison_mode = 'regex'
+    @condition.comparison_value = '[a-z]+'
+    assert @condition.save
+    
+    assert @condition.evaluate('value')
+  end
+  
+  def test_evaluate_regex_false
+    @condition.comparison_mode = 'regex'
+    @condition.comparison_value = '[a-z]+'
+    assert @condition.save
+    
+    assert !@condition.evaluate('12345')
+  end
+  
 end

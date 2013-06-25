@@ -22,7 +22,7 @@ class ProcessCondition < ActiveRecord::Base
   belongs_to :step_if_false, :class_name => 'ProcessStep', :foreign_key => 'step_if_false_id'
   validates_with NextStepValidator
   
-  validates :comparison_mode, :inclusion => { :in => %w(eql? ne?) }
+  validates :comparison_mode, :inclusion => { :in => %w(eql? ne? regex) }
     
   validates :comparison_value, :presence => true
   
@@ -34,6 +34,8 @@ class ProcessCondition < ActiveRecord::Base
       return value.eql?(comparison_value)
     when 'ne?'
       return !value.eql?(comparison_value)
+    when 'regex'
+      return !(value.match(comparison_value)).nil?
     end
   end
   
