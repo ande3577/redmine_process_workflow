@@ -9,7 +9,6 @@ class IssueTest < ActiveSupport::TestCase
            :issue_statuses, :issue_categories, :issue_relations, :workflows,
            :enumerations,
            :issues, :journals, :journal_details,
-           :custom_fields, :custom_fields_projects, :custom_fields_trackers, :custom_values,
            :time_entries
   
   def setup
@@ -30,7 +29,8 @@ class IssueTest < ActiveSupport::TestCase
     @step = ProcessStep.new(:name => 'step', :issue_status => @status, :tracker => @tracker, :process_role_id => @role.id)
     assert @step.save
     
-    @custom_field = CustomField.first
+    @custom_field = ProcessCustomField.new(:name => 'custom_field', :field_format => 'float')
+    assert @custom_field.save
     
     @field = ProcessField.new(:custom_field => @custom_field, :process_step => @step)
     assert @field.save

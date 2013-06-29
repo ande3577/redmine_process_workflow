@@ -35,7 +35,7 @@ class ProcessField < ActiveRecord::Base
   end
   
   def find_action(issue)
-    ProcesssAction.where(:issue_id => issue.id).first
+    ProcessAction.where(:issue_id => issue.id).first
   end
   
 end

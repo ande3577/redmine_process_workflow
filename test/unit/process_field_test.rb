@@ -10,7 +10,10 @@ class ProcessFieldTest < ActiveSupport::TestCase
     @tracker = Tracker.first
     @issue = Issue.where(:tracker_id => @tracker.id).first
     @status = IssueStatus.first
-    @custom_field = CustomField.first
+    
+    @custom_field = ProcessCustomField.new(:name => 'custom_field', :field_format => 'float')
+    assert @custom_field.save
+    
     @step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'step')
     assert @step.save
   end
