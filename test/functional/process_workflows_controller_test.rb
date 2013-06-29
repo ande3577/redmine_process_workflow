@@ -5,6 +5,7 @@ class ProcessWorkflowsControllerTest < ActionController::TestCase
   fixtures :issue_statuses
   fixtures :users
   fixtures :projects
+  fixtures :issues
   
   def setup
     @tracker = Tracker.first
@@ -112,5 +113,27 @@ class ProcessWorkflowsControllerTest < ActionController::TestCase
     assert_equal [1, 6], tracker.custom_field_ids.sort
     assert_equal 0, tracker.workflow_rules.count
   end
+  
+def test_destroy_with_issues
+  @request.session[:user_id] = @admin.id
+    
+  issue = Issue.first
+  issue.tracker = @tracker
+  assert issue.save
+  
+  assert_difference 'Tracker.count', 0 do
+    delete :destroy, :id => @tracker.id
+  end
+  assert_redirected_to :controller => :process_workflows, :action => 'index'
+end
+  
+def test_destroy
+  @request.session[:user_id] = @admin.id
+  @tracker.issues.destroy_all()
+  assert_difference 'Tracker.count', -1 do
+    delete :destroy, :id => @tracker.id
+  end
+  assert_redirected_to :controller => :process_workflows, :action => 'index'
+end
   
 end

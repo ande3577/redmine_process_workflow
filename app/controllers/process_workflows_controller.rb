@@ -44,6 +44,15 @@ class ProcessWorkflowsController < ApplicationController
     render :action => 'edit'
   end
   
+  def destroy
+      unless @tracker.issues.empty?
+        flash[:error] = l(:error_can_not_delete_tracker)
+      else
+        @tracker.destroy
+      end
+      redirect_to :controller => :process_workflows, :action => :index
+  end
+  
 private  
   def find_trackers
     @trackers = []
