@@ -2,7 +2,7 @@
   <% @issue.tracker.process_roles.each do |role| %>
       <tr><td>
         <% member = ProcessMember.where(:process_role_id => role.id, :issue_id => @issue.id).first %>
-        <b><%= role.name %></b><td><%= member.first.user.name if member %></td>
+        <b><%= role.name %></b><td><%= member.user.name if member %></td>
       </tr></td>
     <% end %>
   

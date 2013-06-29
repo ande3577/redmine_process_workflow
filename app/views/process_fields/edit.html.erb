@@ -3,7 +3,7 @@
 <h3><%= l(:label_custom_field_plural) %></h3>
 <%= render :partial => 'process_conditions/process_conditions', :locals => { :field => @field } %>
 
-<%= labelled_form_for @field do |f| %>
-  <%= render :partial => 'process_fields/form', :locals => { :f => f } %>
+<%= labelled_form_for @custom_field, url: {:controller => :process_fields, :action => :update } do |f| %>
+  <%= render :partial => 'custom_fields/form', :locals => { :f => f } %>
   <%= f.submit %>
 <% end %>

@@ -6,7 +6,7 @@ class ProcessField < ActiveRecord::Base
   safe_attributes 'custom_field_id', 'move_to'
   
   belongs_to :process_step 
-  belongs_to :custom_field
+  belongs_to :custom_field, :dependent => :destroy
   
   has_many :process_actions, :dependent => :destroy
   
@@ -35,7 +35,7 @@ class ProcessField < ActiveRecord::Base
   end
   
   def find_action(issue)
-    ProcessAction.where(:issue_id => issue.id).first
+    ProcesssAction.where(:issue_id => issue.id).first
   end
   
 end

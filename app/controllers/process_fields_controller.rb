@@ -4,7 +4,10 @@ class ProcessFieldsController < ApplicationController
   before_filter :require_admin
   before_filter :find_step, :except => [ :edit, :update, :destroy ]
   before_filter :find_field, :only => [ :edit, :update, :destroy ]
-  before_filter :find_conditions, :only => [ :edit ]
+  before_filter :find_conditions, :only => [ :edit, :update ]
+  before_filter :build_process_custom_field, :only => [:new, :create]
+    
+  helper :custom_fields
 
   def index
     @fields = @step.process_fields
@@ -18,24 +21,26 @@ class ProcessFieldsController < ApplicationController
   end
 
   def create
-    @field = ProcessField.new(params[:process_field])
-    @field.process_step = @step
-    if @field.save
-      redirect_to :controller => :process_steps, :action => :edit, :id => @field.process_step.id
-      return
+    if @custom_field.save
+      @field = ProcessField.new(:custom_field => @custom_field, :process_step => @step)
+      if @field.save
+        redirect_to :controller => :process_steps, :action => :edit, :id => @field.process_step.id
+        return
+      else
+        @custom_field.destroy
+      end
     end
     new
     render :action => :new
   end
 
   def update
-    @field.safe_attributes = params[:process_field]
-    if @field.save
+    if @custom_field.update_attributes(params[:process_custom_field])
       flash[:notice] = l(:notice_successful_update)
       redirect_to :controller => :process_steps, :action => :edit, :id => @field.process_step.id
       return
     end
-    @field.reload
+    @custom_field.reload
     edit
     render :action => :edit
   end
@@ -73,10 +78,15 @@ class ProcessFieldsController < ApplicationController
       render_404
       return false
     end
+    @custom_field = @field.custom_field
   end
   
   def find_conditions
     @conditions = @field.process_conditions
     true
+  end
+  
+  def build_process_custom_field
+    @custom_field = ProcessCustomField.new(params[:process_custom_field])
   end
 end

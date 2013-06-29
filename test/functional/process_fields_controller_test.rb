@@ -9,7 +9,8 @@ class ProcessFieldsControllerTest < ActionController::TestCase
   def setup
     @tracker = Tracker.first
     @status = IssueStatus.first
-    @custom_field = CustomField.first
+    @custom_field = ProcessCustomField.new(:name => 'custom_field', :field_format => 'float')
+    assert @custom_field.save
     
     @step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'step')
     assert @step.save
@@ -37,12 +38,17 @@ class ProcessFieldsControllerTest < ActionController::TestCase
   end
   
   def test_new
-    get :new, :process_step_id => @step.id
+    get :new, :process_step_id => @step.id, :process_custom_field => {:name => "custom field" }
     assert_response 200
     
     field = assigns(:field)
     assert field
-    assert_equal @step, field.process_step
+    
+    custom_field = assigns(:custom_field)
+    assert custom_field
+    assert_equal "custom field", custom_field.name
+    
+    assert_equal @step, assigns(:step)
   end
   
   def test_edit
@@ -53,47 +59,48 @@ class ProcessFieldsControllerTest < ActionController::TestCase
     assert field
     assert_equal @field, field
     
+    custom_field = assigns(:custom_field)
+    assert custom_field
+    assert_equal @custom_field, custom_field
+    
     conditions = assigns(:conditions)
     assert conditions
     assert_equal @condition, conditions.first
   end
   
   def test_create
-    new_custom_field = CustomField.find(2)
-    assert_difference 'ProcessField.count' do
-          post :create, :process_step_id => @step.id, :process_field => { :custom_field_id => new_custom_field.id }
+    assert_difference ['ProcessField.count', 'ProcessCustomField.count'] do
+          post :create, :process_step_id => @step.id, :process_custom_field => { :name => 'new_custom_field', :field_format => 'float' }
     end
     assert_redirected_to :controller => :process_steps, :action => :edit, :id => @step.id
     
     new_field = ProcessField.last
     assert_equal @step, new_field.process_step
+    
+    new_custom_field = ProcessCustomField.last
     assert_equal new_custom_field, new_field.custom_field
+    assert_equal 'new_custom_field', new_custom_field.name
   end
   
   def test_create_invalid
     new_custom_field = CustomField.find(2)
-    assert_difference 'ProcessField.count', 0 do
-          post :create, :process_step_id => @step.id, :process_field => { :custom_field_id => 99 }
+    assert_difference ['ProcessField.count', 'ProcessCustomField.count'], 0 do
+          post :create, :process_step_id => @step.id, :process_custom_field => { :field_format => 'invalid' }
     end
     assert_response 200
     assert_template :new
   end
   
   def test_update
-    new_custom_field = CustomField.find(2)
-    new_step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'new step')
-    assert new_step.save
-    
-    post :update, :id => @field.id, :process_field => { :custom_field_id => new_custom_field.id, :process_step_id => new_step.id }
+    post :update, :id => @field.id, :process_custom_field => { :name => 'new_name' }
     assert_redirected_to :controller => :process_steps, :action => :edit, :id => @step.id  
     
-    @field.reload
-    assert_equal new_custom_field, @field.custom_field
-    assert_equal @step, @field.process_step
+    @custom_field.reload
+    assert_equal 'new_name', @custom_field.name
   end
   
   def test_update_invalid
-    post :update, :id => @field.id, :process_field => { :custom_field_id => 99, :id => @step.id }
+    post :update, :id => @field.id, :process_custom_field => { :name => '' }
     assert_response 200
     assert_template :edit
   end
