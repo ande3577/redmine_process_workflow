@@ -3,7 +3,7 @@
     <% if role.safe_attribute? 'name' %> 
       <p>
         <% member = ProcessMember.where(:process_role_id => role.id, :issue_id => @issue.id).first %>
-        <label><%= role.name %></label><%= select_tag 'role[' + role.name + ']', principals_options_for_select(@issue.assignable_users, member.nil? ? nil : member.user), :include_blank => :true %>
+        <label><%= role.name %></label><%= select_tag 'role[' + role.name + ']', principals_options_for_select(@issue.assignable_users, member.nil? ? nil : member.principal), :include_blank => :true %>
       </p>
     <% end %>
   <% end %>

@@ -46,7 +46,7 @@ class ProcessRoleTest < ActiveSupport::TestCase
     
     assert_equal 0, role.process_members.count
     
-    member = ProcessMember.new(:process_role => role, :user => @user, :issue => Issue.first)
+    member = ProcessMember.new(:process_role => role, :principal => @user, :issue => Issue.first)
     assert member.save
     
     assert_equal 1, role.process_members.count

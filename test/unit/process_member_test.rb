@@ -2,6 +2,7 @@ require File.expand_path('../../test_helper', __FILE__)
 
 class ProcessMemberTest < ActiveSupport::TestCase
   fixtures :users
+  fixtures :groups_users
   fixtures :trackers
   fixtures :issues
   
@@ -15,16 +16,24 @@ class ProcessMemberTest < ActiveSupport::TestCase
   end
   
   def test_create
-    member = ProcessMember.new(:process_role => @process_role, :user => @user, :issue => @issue)
+    member = ProcessMember.new(:process_role => @process_role, :principal => @user, :issue => @issue)
     assert member.save
     
     assert_equal @process_role, member.process_role
-    assert_equal @user, member.user
+    assert_equal @user, member.principal
     assert_equal @issue, member.issue
   end
   
+  def test_create_group
+    group = Group.find(10)
+    member = ProcessMember.new(:process_role => @process_role, :user_id => group.id, :issue => @issue)
+    assert member.save
+    
+    assert_equal group, member.principal
+  end
+  
   def test_destroy_issue
-    member = ProcessMember.new(:process_role => @process_role, :user => @user, :issue => @issue)
+    member = ProcessMember.new(:process_role => @process_role, :principal => @user, :issue => @issue)
     assert member.save
     
     issue_id = @issue.id
@@ -34,7 +43,7 @@ class ProcessMemberTest < ActiveSupport::TestCase
   end
   
   def test_change_issue_tracker
-    member = ProcessMember.new(:process_role => @process_role, :user => @user, :issue => @issue)
+    member = ProcessMember.new(:process_role => @process_role, :principal => @user, :issue => @issue)
     assert member.save
     
     @issue.tracker = Tracker.last
@@ -43,7 +52,7 @@ class ProcessMemberTest < ActiveSupport::TestCase
   end
   
   def test_destroy_user
-    member = ProcessMember.new(:process_role => @process_role, :user => @user, :issue => @issue)
+    member = ProcessMember.new(:process_role => @process_role, :principal => @user, :issue => @issue)
     assert member.save
     
     id = @user.id
@@ -53,7 +62,7 @@ class ProcessMemberTest < ActiveSupport::TestCase
   end
   
   def test_destroy_role
-    member = ProcessMember.new(:process_role => @process_role, :user => @user, :issue => @issue)
+    member = ProcessMember.new(:process_role => @process_role, :principal => @user, :issue => @issue)
     assert member.save
     
     id = @process_role.id
@@ -63,7 +72,7 @@ class ProcessMemberTest < ActiveSupport::TestCase
   end
   
   def test_create_without_process_role
-    member = ProcessMember.new(:user => @user, :issue => @issue)
+    member = ProcessMember.new(:principal => @user, :issue => @issue)
     assert !member.save
   end
   
@@ -73,7 +82,7 @@ class ProcessMemberTest < ActiveSupport::TestCase
   end
   
   def test_create_without_issue
-    member = ProcessMember.new(:process_role => @process_role, :user => @user)
+    member = ProcessMember.new(:process_role => @process_role, :principal => @user)
     assert !member.save
   end
 end

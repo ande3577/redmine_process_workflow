@@ -45,12 +45,14 @@ class IssueTest < ActiveSupport::TestCase
     
     assert @issue.save
     
-    @member = ProcessMember.new(:process_role => @role, :user => @user, :issue => @issue)
+    @member = ProcessMember.new(:process_role => @role, :principal => @user, :issue => @issue)
     assert @member.save
-    @next_member = ProcessMember.new(:process_role => @next_role, :user => @next_user, :issue => @issue)
+    @next_member = ProcessMember.new(:process_role => @next_role, :principal => @next_user, :issue => @issue)
     assert @next_member.save
     
     assert @issue.save
+    
+    @group = Group.first
     
     @admin = User.where(:admin => true).first
   end
@@ -61,6 +63,20 @@ class IssueTest < ActiveSupport::TestCase
     assert_equal @next_step, @issue.process_step
     assert_equal @next_status, @issue.status
     assert_equal @next_user, @issue.assigned_to
+  end
+  
+  def test_apply_step_with_group
+    @next_member.principal = @group
+    assert @next_member.save
+    @next_member.reload
+    
+    assert_equal @group, @next_member.principal
+    
+    assert @issue.apply_process_step_change(@next_step)
+    
+    assert_equal @next_step, @issue.process_step
+    assert_equal @next_status, @issue.status
+    assert_equal @group, @issue.assigned_to
   end
   
   def test_apply_step_nil
@@ -108,7 +124,7 @@ class IssueTest < ActiveSupport::TestCase
     :subject => 'test_sort_steps',
     :description => 'IssueTest#test_sort_steps', :estimated_hours => '1:30')
     
-    new_member = ProcessMember.new(:process_role => @next_role, :user => @next_user, :issue => new_issue)
+    new_member = ProcessMember.new(:process_role => @next_role, :principal => @next_user, :issue => new_issue)
     assert new_member.save
     
     assert new_issue.save
@@ -120,11 +136,19 @@ class IssueTest < ActiveSupport::TestCase
   end
   
   def test_update_assign_when_changing_member
-    @member.user = @next_user
+    @member.principal = @next_user
     @member.save
     @issue.reload
     
     assert_equal @next_user, @issue.assigned_to
+  end
+  
+  def test_update_assigned_when_changing_to_group
+    @member.principal = @group
+    @member.save
+    @issue.reload
+    
+    assert_equal @group, @issue.assigned_to
   end
   
   def test_update_assign_when_changing_role

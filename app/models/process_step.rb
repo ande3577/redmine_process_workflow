@@ -35,7 +35,7 @@ class ProcessStep < ActiveRecord::Base
       ProcessState.where(:process_step_id => self.id).each do |state|
         member = ProcessMember.where(:process_role_id => self.process_role_id, :issue_id => state.issue_id).first
         unless member.nil?
-          state.issue.assigned_to = member.user
+          state.issue.assigned_to = member.principal
           state.issue.save
         end
       end
