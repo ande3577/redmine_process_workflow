@@ -23,11 +23,12 @@ class ProcessConditionsControllerTest < ActionController::TestCase
   end
   
   def test_new
-    get :new, :process_field_id => @field.id
+    get :new, :process_field_id => @field.id, :process_condition => { :comparison_mode => 'eql?'}
     assert_response 200
     
     condition = assigns(:condition)
     assert condition
+    assert_equal 'eql?', condition.comparison_mode
     assert_equal @field, condition.process_field
   end
   

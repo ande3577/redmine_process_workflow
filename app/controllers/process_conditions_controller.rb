@@ -4,15 +4,13 @@ class ProcessConditionsController < ApplicationController
   before_filter :require_admin
   before_filter :find_field, :except => [ :edit, :update, :destroy ]
   before_filter :find_condition, :only => [ :edit, :update, :destroy ]
+  before_filter :build_condition_from_params, :only => [:new, :create]
 
 
   def new
-    @condition = ProcessCondition.new(:process_field => @field)
   end
 
   def create
-    @condition = ProcessCondition.new(params[:process_condition])
-    @condition.process_field = @field
     if @condition.save
       redirect_to :controller => :process_fields, :action => :edit, :id => @condition.process_field.id
       return
@@ -69,6 +67,11 @@ class ProcessConditionsController < ApplicationController
       render_404
       return false
     end
+  end
+  
+  def build_condition_from_params
+    @condition = ProcessCondition.new(params[:process_condition])
+    @condition.process_field = @field
   end
   
 end

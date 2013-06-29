@@ -46,9 +46,10 @@ class ProcessStepsControllerTest < ActionController::TestCase
   end
   
   def test_new
-    get :new, :tracker_id => @tracker.id
+    get :new, :tracker_id => @tracker.id, :process_step => { :name => 'New step'}
     assert_response 200
     assert assigns(:step)
+    assert_equal 'New step', assigns(:step).name
   end
   
   def test_edit

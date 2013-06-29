@@ -1,3 +1,5 @@
+<%= error_messages_for 'condition' %>
+
 <div class="box tabular">
   <p><%= f.select 'comparison_mode', ['eql?', 'ne?', 'regex'] %>
   <p><%= f.text_field 'comparison_value' %>

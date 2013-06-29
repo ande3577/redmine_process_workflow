@@ -8,11 +8,13 @@
   <thead><tr>
   <th><%=l(:label_process)%></th>
   <th></th>
+  <th></th<
   </tr></thead>
   <tbody>
 <% for tracker in @trackers %>
   <tr class="<%= cycle("odd", "even") %>">
-  <td><%= link_to h(tracker.name), { controller => :process_workflows, :action => :edit, :id => tracker.id } %></td>
+  <td><%= h(tracker.name) %></td>
+  <td class="buttons"><%= link_to l(:button_edit), { :controller => 'process_workflows', :action => 'edit', :id => tracker.id }, {:class => 'icon icon-edit'} %></td>
   <td class="buttons">
     <%= delete_link tracker_path(tracker) %>
   </td>

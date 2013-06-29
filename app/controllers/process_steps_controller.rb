@@ -4,13 +4,13 @@ class ProcessStepsController < ApplicationController
   before_filter :require_admin
   before_filter :find_tracker, :except => [ :edit, :update, :destroy  ]
   before_filter :find_step, :only => [ :edit, :update, :destroy ] 
+  before_filter :build_step_from_params, :only => [:new, :create]
 
   def index
     @steps = ProcessStep.where(:tracker_id => @tracker.id).order('position ASC').all
   end
 
   def new
-    @step = ProcessStep.new
   end
 
   def edit
@@ -18,13 +18,11 @@ class ProcessStepsController < ApplicationController
   end
 
   def create
-    @step = ProcessStep.new(params[:process_step])
     @step.tracker = @tracker
     if @step.save
       redirect_to :controller => :process_workflows, :action => :edit, :id => @tracker.id
       return
     end
-    new
     render :action => :new
   end
 
@@ -76,5 +74,8 @@ class ProcessStepsController < ApplicationController
     @tracker = @step.tracker
   end
   
+  def build_step_from_params
+    @step = ProcessStep.new(params[:process_step])
+  end
   
 end

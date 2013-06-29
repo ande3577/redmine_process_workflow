@@ -1,7 +1,7 @@
 class NextStepValidator < ActiveModel::Validator
   def validate(record)
     if record.comparison_mode != 'none' && record.step_if_true.nil? && record.step_if_false.nil?
-      record.errors[:base] << "Must specify at least one next step if comparison mode specified."
+      record.errors[:base] << "Must specify at least one next step."
     end
   end
 end

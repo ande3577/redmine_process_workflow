@@ -5,7 +5,10 @@ class ProcessWorkflowsController < ApplicationController
   before_filter :find_trackers
   before_filter :find_projects
   before_filter :find_tracker, :except => [ :index, :new, :create ]
-
+  before_filter :build_tracker_from_params, :only => [:new, :create] 
+  before_filter :find_steps, :only => [:edit, :update]
+  before_filter :find_roles, :only => [:edit, :update]
+    
   helper :process_steps
     
   def index
@@ -15,29 +18,21 @@ class ProcessWorkflowsController < ApplicationController
   end
 
   def new
-    @tracker = Tracker.new
   end
   
   def edit
-    @steps = ProcessStep.where(:tracker_id => @tracker.id).order('position ASC').all
-    @roles = @tracker.process_roles
-    
     respond_to do |format|
       format.html
     end
   end
 
   def create
-    @tracker = Tracker.new(params[:tracker])
-    @tracker.process_workflow = true
     if @tracker.save
       redirect_to :action => :edit, :id => @tracker.id
       return  
     end
     new
-    respond_to do |format|
-      format.html { render :action => :new }
-    end
+    render :action => :new
   end
   
   def update
@@ -46,7 +41,6 @@ class ProcessWorkflowsController < ApplicationController
       redirect_to :action => :index
       return
     end
-    edit
     render :action => 'edit'
   end
   
@@ -77,6 +71,19 @@ private
   
   def find_projects
     @projects = Project.visible.active.all
+  end
+  
+  def find_steps
+    @steps = ProcessStep.where(:tracker_id => @tracker.id).order('position ASC').all
+  end
+  
+  def find_roles
+    @roles = @tracker.process_roles
+  end
+  
+  def build_tracker_from_params
+    @tracker = Tracker.new(params[:tracker])
+    @tracker.process_workflow = true
   end
   
 end

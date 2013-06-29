@@ -28,12 +28,13 @@ class ProcessRolesControllerTest < ActionController::TestCase
   end
   
   def test_new
-    get :new, :tracker_id => @tracker.id
+    get :new, :tracker_id => @tracker.id, :process_role => { :name => 'New Role' }
     assert_response 200
     
     role = assigns(:role)
     assert role
-    assert_equal @tracker, role.tracker 
+    assert_equal @tracker, role.tracker
+    assert_equal 'New Role', role.name 
   end
   
   def test_edit

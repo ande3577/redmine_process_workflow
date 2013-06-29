@@ -4,6 +4,7 @@ class ProcessRolesController < ApplicationController
   before_filter :require_admin
   before_filter :find_tracker, :except => [:edit, :update, :destroy]
   before_filter :find_role, :only => [:edit, :update, :destroy]
+  before_filter :build_role_from_params, :only => [:new, :create]
 
 
   def index
@@ -11,15 +12,12 @@ class ProcessRolesController < ApplicationController
   end
 
   def new
-    @role = ProcessRole.new(:tracker_id => @tracker.id)
   end
 
   def edit
   end
 
   def create
-    @role = ProcessRole.new(params[:process_role])
-    @role.tracker = @tracker
     if @role.save
       redirect_to :controller => :process_workflows, :action => :edit, :id => @tracker.id
       return
@@ -73,5 +71,10 @@ class ProcessRolesController < ApplicationController
       return false
     end
     @tracker = @role.tracker
+  end
+  
+  def build_role_from_params
+    @role = ProcessRole.new(params[:process_role])
+    @role.tracker = @tracker
   end
 end
