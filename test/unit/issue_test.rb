@@ -29,11 +29,10 @@ class IssueTest < ActiveSupport::TestCase
     @step = ProcessStep.new(:name => 'step', :issue_status => @status, :tracker => @tracker, :process_role_id => @role.id)
     assert @step.save
     
-    @custom_field = ProcessCustomField.new(:name => 'custom_field', :field_format => 'float')
+    @custom_field = ProcessCustomField.new(:name => 'custom_field', :field_format => 'float', :process_step => @step)
     assert @custom_field.save
     
-    @field = ProcessField.new(:custom_field => @custom_field, :process_step => @step)
-    assert @field.save
+    @field = @custom_field.process_field
     
     @next_step = ProcessStep.new(:name => 'next_step', :issue_status => @next_status, :tracker => @tracker, :process_role_id => @next_role.id)
     assert @next_step.save

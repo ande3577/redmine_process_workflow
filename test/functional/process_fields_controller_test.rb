@@ -9,13 +9,15 @@ class ProcessFieldsControllerTest < ActionController::TestCase
   def setup
     @tracker = Tracker.first
     @status = IssueStatus.first
-    @custom_field = ProcessCustomField.new(:name => 'custom_field', :field_format => 'float')
-    assert @custom_field.save
     
     @step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'step')
     assert @step.save
-    @field = ProcessField.new(:process_step => @step, :custom_field => @custom_field)
-    assert @field.save
+    
+    @custom_field = ProcessCustomField.new(:name => 'custom_field', :field_format => 'float', :process_step => @step)
+    assert @custom_field.save
+    
+    @field = @custom_field.process_field
+    
     @condition = ProcessCondition.new(:process_field => @field, :comparison_mode => 'eql?', :comparison_value => 'value', :step_if_true => @step)
     assert @condition.save
     

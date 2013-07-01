@@ -21,14 +21,10 @@ class ProcessFieldsController < ApplicationController
   end
 
   def create
+    @custom_field.process_step = @step
     if @custom_field.save
-      @field = ProcessField.new(:custom_field => @custom_field, :process_step => @step)
-      if @field.save
-        redirect_to :controller => :process_steps, :action => :edit, :id => @field.process_step.id
-        return
-      else
-        @custom_field.destroy
-      end
+      redirect_to :controller => :process_steps, :action => :edit, :id => @step.id
+      return
     end
     new
     render :action => :new
