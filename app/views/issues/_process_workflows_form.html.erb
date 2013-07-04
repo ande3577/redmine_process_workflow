@@ -2,24 +2,27 @@
   <% @issue.tracker.process_roles.each do |role| %>
     <% if role.safe_attribute? 'name' %> 
       <p>
-        <% member = ProcessMember.where(:process_role_id => role.id, :issue_id => @issue.id).first %>
+        <% member = @process_members[role.name] %>
         <label><%= role.name %></label><%= select_tag 'role[' + role.name + ']', principals_options_for_select(@issue.assignable_users, member.nil? ? nil : member.principal), :include_blank => :true %>
       </p>
     <% end %>
   <% end %>
   
+  <% step = @process_step.nil? ? @issue.tracker.process_steps.first : @process_step %>
+  
   <% if User.current.allowed_to?(:set_process_step, @project, :global => false ) %>
     <p>
       <label><%= l(:label_step) %></label>
-      <%= select_tag 'process_step', options_from_collection_for_select(@issue.tracker.process_steps, 'id', 'name', issue.process_step.id) %>
+      <%= select_tag 'process_step', options_from_collection_for_select(@issue.tracker.process_steps, 'id', 'name', step.id ) %>
     </p>
   <% end %>
   
-  <% unless @issue.process_step.nil? %>
-    <h3><%= @issue.process_step.name %></h3>
-    <% @issue.process_step.process_fields.order("position ASC").each do |field| %>
+  <% unless step.nil? %>
+    <h3><%= step.name %></h3>
+    <% step.process_fields.order("position ASC").each do |field| %>
       <p>
-        <% value = ProcessAction.where(:issue_id => @issue.id, :process_field_id => field.id).first %>
+        <% value = @process_actions[field.custom_field_id.to_s] %>
+        <% value = ProcessAction.new(:issue_id => @issue.id, :process_field_id => field.id) if value.nil? %>
         <p><%= custom_field_tag_with_label 'process_fields', value, :required => @issue.required_attribute?(field.custom_field_id) %></p>
       </p>
     <% end %>  
