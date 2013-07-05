@@ -1,3 +1,4 @@
+<% html_title(@step.name) %>
 <h2><%= link_to l(:label_process_plural), {:controller => :process_workflows, :action => :index } %> &#187; <%= link_to @tracker.name, {:controller => :process_workflows, :action => :edit, :id => @tracker.id } %> &#187; <%= @step.name %> </h2>
 
 <h3><%= l(:label_custom_field_plural) %></h3>

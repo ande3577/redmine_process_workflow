@@ -1,3 +1,4 @@
+<% html_title(l(:label_role_plural) %>
 <h2><%= link_to l(:label_process_plural), {:controller => :process_workflows, :action => :index } %> &#187; <%= link_to @tracker.name, {:controller => :process_workflows, :action => :edit, :id => @tracker.id } %> &#187; <%= l(:label_role_plural) %> </h2>
 
 <%= render :partial => 'process_roles', :local => { :roles => @roles } %>
