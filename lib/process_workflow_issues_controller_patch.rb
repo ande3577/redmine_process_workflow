@@ -45,10 +45,17 @@ module ProcessWorkflowIssuesControllerPatch
   
   def find_actions
     return true unless @issue.tracker.process_workflow
+    
+    # first we get all of the existing process actions for the issue 
+    for a in @issue.process_actions
+      custom_field = a.process_field.custom_field
+      @process_actions[custom_field.id.to_s] = a
+    end
+    
+    # then we create process actions for any new fields
     for f in @issue.process_step.process_fields
       custom_field = f.custom_field
-      @process_actions[custom_field.id.to_s] = ProcessAction.where(:issue_id => @issue.id, :process_field_id => f.id).first
-      @process_actions[custom_field.id.to_s] = ProcessAction.new(:issue_id => @issue.id, :process_field_id => f.id, :value => custom_field.default_value, :user => User.current, :timestamp => Time.now) if @process_actions[custom_field.id.to_s].nil? 
+      @process_actions[custom_field.id.to_s] = ProcessAction.new(:issue_id => @issue.id, :process_field_id => f.id, :value => custom_field.default_value, :user => User.current, :timestamp => Time.now) if @process_actions[custom_field.id.to_s].nil?
     end
   end
   
