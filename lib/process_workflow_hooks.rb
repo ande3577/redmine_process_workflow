@@ -53,8 +53,13 @@ class ProcessWorkflowHooks < Redmine::Hook::ViewListener
     unless custom_fields.nil?
       custom_fields.each do |field|
         process_state = ProcessState.where(:issue_id => issue.id).first
-        process_field = ProcessField.where(:process_step_id => process_state.process_step, :custom_field_id => field[0]).first
+        return if process_state.nil?
+        custom_field = ProcessCustomField.where(:id => field[0]).first
+        return if custom_field.nil?
+        process_field = ProcessField.where(:custom_field_id => custom_field.id).first
+        return if process_field.nil?
         process_action = ProcessAction.where(:issue_id => issue.id, :process_field_id => process_field.id).first
+        return if process_action.nil?
         process_action.value = field[1]
         process_action.user_id = User.current.id
         process_action.timestamp = Time.now
