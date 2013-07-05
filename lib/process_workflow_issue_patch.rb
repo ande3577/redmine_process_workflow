@@ -44,9 +44,9 @@ module ProcessWorkflowIssuePatch
     
     def process_step
       state = self.process_state
-      return nil if state.nil?
-      
-      state.process_step
+      step = state.process_step unless state.nil?
+      step = tracker.process_steps.first if step.nil?
+      step
     end
     
     def create_actions

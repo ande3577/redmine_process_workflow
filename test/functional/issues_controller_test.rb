@@ -55,7 +55,7 @@ class IssuesControllerTest < ActionController::TestCase
     get :new, :project_id => @project.id,
       :role => { @role.name => @admin.id },
       :process_step => @new_step.id, 
-      :process_fields => { :custom_field_values => { @custom_field.id => "1.2345" } }
+      :process_fields => { :custom_field_values => { @custom_field.id.to_s => "1.2345" } }
   
     members = assigns[:process_members]
     assert !members.nil?
@@ -69,7 +69,7 @@ class IssuesControllerTest < ActionController::TestCase
     assert !actions.nil?
     assert actions.any?
     
-    action = actions[@custom_field.id]
+    action = actions[@custom_field.id.to_s]
     assert action
     assert_equal @custom_field, action.process_field.custom_field
     assert_equal "1.2345", action.value
@@ -79,11 +79,25 @@ class IssuesControllerTest < ActionController::TestCase
     assert_response :success
   end
   
+  def test_new_with_default_field_value
+    @custom_field.update_attribute(:default_value, "1.2345")
+    assert @custom_field.save
+    
+    get :new, :project_id => @project.id,
+      :role => { @role.name => @admin.id },
+      :process_step => @new_step.id
+     
+    action = assigns[:process_actions][@custom_field.id.to_s]
+    assert action
+    assert_equal @custom_field, action.process_field.custom_field
+    assert_equal "1.2345", action.value
+  end
+  
   def test_create
     assert_difference ['Issue.count', 'ProcessAction.count', 'ProcessMember.count'] do
       post :create, :project_id => @project.id, :issue => { :subject => 'New issue', :tracker_id => @tracker.id }, 
         :role => { @role.name => @admin.id },
-        :process_fields => { :custom_field_values => { @custom_field.id => "1.2345" } }
+        :process_fields => { :custom_field_values => { @custom_field.id.to_s => "1.2345" } }
     end
     issue = Issue.last
     assert_redirected_to "/issues/#{issue.id}"
@@ -109,7 +123,7 @@ class IssuesControllerTest < ActionController::TestCase
     assert !actions.nil?
     assert actions.any?
     
-    action = actions[@custom_field.id]
+    action = actions[@custom_field.id.to_s]
     assert action
     assert_equal @custom_field, action.process_field.custom_field
     assert_equal "1.2345", action.value
@@ -120,7 +134,7 @@ class IssuesControllerTest < ActionController::TestCase
     new_user = User.find(2)
     post :update, :id => @issue.id, :issue => { :subject => 'Change subject', :tracker_id => @tracker.id }, 
       :role => { @role.name => new_user.id },
-      :process_fields => { :custom_field_values => { @custom_field.id => "2.345" } }
+      :process_fields => { :custom_field_values => { @custom_field.id.to_s => "2.345" } }
         
     assert_redirected_to "/issues/#{@issue.id}"
     
@@ -152,13 +166,13 @@ class IssuesControllerTest < ActionController::TestCase
     post :update, :id => @issue.id, :issue => { :subject => '', :tracker_id => @tracker.id }, 
       :role => { @role.name => new_user.id },
       :process_step => @new_step.id,
-      :process_fields => { :custom_field_values => { @custom_field.id => "2.345" } }
+      :process_fields => { :custom_field_values => { @custom_field.id.to_s => "2.345" } }
         
     assert_response 200
     
     assert_equal '', assigns[:issue].subject
     assert_equal new_user, assigns[:process_members][@role.name].principal
-    assert_equal "2.345", assigns[:process_actions][@custom_field.id].value
+    assert_equal "2.345", assigns[:process_actions][@custom_field.id.to_s].value
    
     assert_equal @new_step, assigns[:process_step]
   end

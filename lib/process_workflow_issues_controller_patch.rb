@@ -7,7 +7,8 @@ module ProcessWorkflowIssuesControllerPatch
     base.class_eval do
       before_filter :find_step, :only => [:show, :update, :new, :create, :edit, :update_form]
       before_filter :initialize_members, :initialize_actions, :only => [:show, :update, :new, :create, :edit, :update_form]
-      before_filter :find_members, :find_actions, :only => [:show, :update, :edit, :update_form]
+      before_filter :find_members, :only => [:show, :update, :edit, :update_form]
+      before_filter :find_actions, :only => [:show, :update, :edit, :update_form, :new, :create]  
       before_filter :build_members_from_parameters, :build_actions_from_parameters, :only => [:update, :new, :create, :edit, :update_form]
     end
   end
@@ -44,8 +45,10 @@ module ProcessWorkflowIssuesControllerPatch
   
   def find_actions
     return true unless @issue.tracker.process_workflow
-    for a in @issue.process_actions
-      @process_actions[a.process_field.custom_field.id.to_s] = a
+    for f in @issue.process_step.process_fields
+      custom_field = f.custom_field
+      @process_actions[custom_field.id.to_s] = ProcessAction.where(:issue_id => @issue.id, :process_field_id => f.id).first
+      @process_actions[custom_field.id.to_s] = ProcessAction.new(:issue_id => @issue.id, :process_field_id => f.id, :value => custom_field.default_value, :user => User.current, :timestamp => Time.now) if @process_actions[custom_field.id.to_s].nil? 
     end
   end
   
@@ -67,11 +70,12 @@ module ProcessWorkflowIssuesControllerPatch
     
     if params[:process_fields] and params[:process_fields][:custom_field_values]
       for f in params[:process_fields][:custom_field_values]
-        field = ProcessField.where(:custom_field_id => f[0]).first
-        @process_actions[f[0]] = ProcessAction.new(:issue => @issue, :process_field_id => field.id) if field and @process_actions[f[0]].nil?
-        @process_actions[f[0]].value = f[1]
-        @process_actions[f[0]].user_id = User.current.id
-        @process_actions[f[0]].timestamp = Time.now
+        if @process_actions[f[0]]
+          field = ProcessField.where(:custom_field_id => f[0]).first
+          @process_actions[f[0]].value = f[1]
+          @process_actions[f[0]].user_id = User.current.id
+          @process_actions[f[0]].timestamp = Time.now
+        end
       end
     end
   end
