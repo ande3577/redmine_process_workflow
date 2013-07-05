@@ -24,8 +24,11 @@ class ProcessCondition < ActiveRecord::Base
   
   validates :comparison_mode, :inclusion => { :in => %w(eql? ne? regex) }
     
-  validates :comparison_value, :presence => true
-  
+  def comparison_value
+    return read_attribute(:comparison_value) if read_attribute(:comparison_value)
+    return ''
+  end
+    
   def evaluate(value)
     case comparison_mode
     when 'none'

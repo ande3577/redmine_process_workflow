@@ -65,7 +65,14 @@ class ProcessConditionTest < ActiveSupport::TestCase
   
   def test_create_no_comparison_value
     @condition.comparison_value = nil
-    assert !@condition.save
+    assert @condition.save
+    assert @condition.evaluate('')
+  end
+
+  def test_create_empty_comparison_value
+    @condition.comparison_value = ''
+    assert @condition.save
+    assert @condition.evaluate('')
   end
   
   def test_create_step_if_false
