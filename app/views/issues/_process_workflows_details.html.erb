@@ -9,20 +9,20 @@
   <% @issue.tracker.process_steps.each do |step| %>
     <tr><td>
     <h3><%= step.name %></h3>
-    <tr><td>
       <% step.process_fields.order("position ASC").each do |field| %>
-        <p><b><%= field.custom_field.name %></b></td><td>
-        <% action = @process_actions[field.custom_field.id] %>
-        <% if !action.nil? && !action.user_id.nil?%>
-        <%= action.value %><br>
-        <em>
-        <%= l(:label_updated_time_by, :author => link_to_user(User.where(:id => action.user_id).first), :age => time_tag(action.timestamp)).html_safe %>
-        </em>
-        <% end %></p>
-    </tr></td>
+        <tr><td><b><%= field.custom_field.name %></b></td>
+          <td>
+          <% action = @process_actions[field.custom_field.id.to_s] %>
+          <% if !action.nil? && !action.user_id.nil?%>
+          <%= action.value %><br>
+          <em>
+          <%= l(:label_updated_time_by, :author => link_to_user(User.where(:id => action.user_id).first), :age => time_tag(action.timestamp)).html_safe %>
+          </em>
+          </td>
+        </tr>
+      <% end %>
   <% end %>
       
-    </tr></td>
   <% end %>
   
 <% end %>

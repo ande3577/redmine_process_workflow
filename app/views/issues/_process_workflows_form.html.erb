@@ -23,7 +23,7 @@
       <p>
         <% value = @process_actions[field.custom_field_id.to_s] %>
         <% value = ProcessAction.new(:issue_id => @issue.id, :process_field_id => field.id) if value.nil? %>
-        <p><%= custom_field_tag_with_label 'process_fields', value, :required => @issue.required_attribute?(field.custom_field_id) %></p>
+        <%= custom_field_tag_with_label 'process_fields', value, :required => @issue.required_attribute?(field.custom_field_id) %>
       </p>
     <% end %>  
   <% end %>

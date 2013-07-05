@@ -45,7 +45,7 @@ module ProcessWorkflowIssuesControllerPatch
   def find_actions
     return true unless @issue.tracker.process_workflow
     for a in @issue.process_actions
-      @process_actions[a.process_field.custom_field.id] = a
+      @process_actions[a.process_field.custom_field.id.to_s] = a
     end
   end
   

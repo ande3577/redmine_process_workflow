@@ -141,7 +141,7 @@ class IssuesControllerTest < ActionController::TestCase
     actions = assigns[:process_actions]
     assert !actions.nil?
     assert actions.any?
-    assert_equal @action, assigns[:process_actions][@custom_field.id]
+    assert_equal @action, assigns[:process_actions][@custom_field.id.to_s]
       
     assert_equal @step, assigns[:process_step]
     
@@ -177,7 +177,7 @@ class IssuesControllerTest < ActionController::TestCase
     actions = assigns[:process_actions]
     assert !actions.nil?
     assert actions.any?
-    assert_equal @action, assigns[:process_actions][@custom_field.id]
+    assert_equal @action, assigns[:process_actions][@custom_field.id.to_s]
        
     assert_equal @step, assigns[:process_step]
   end
