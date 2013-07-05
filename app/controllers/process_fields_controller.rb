@@ -31,7 +31,7 @@ class ProcessFieldsController < ApplicationController
   end
 
   def update
-    if @custom_field.update_attributes(params[:process_custom_field])
+    if @field.update_attributes(params[:process_field]) and @custom_field.update_attributes(params[:process_custom_field])
       flash[:notice] = l(:notice_successful_update)
       redirect_to :controller => :process_steps, :action => :edit, :id => @field.process_step.id
       return
