@@ -53,4 +53,23 @@ class ProcessFieldTest < ActiveSupport::TestCase
     
   end
   
+  def test_create_duplicate
+    assert  @custom_field.save
+    @custom_field.reload
+    
+    new_custom_field = ProcessCustomField.new(:process_step => @step, :name => 'custom_field', :field_format => 'float')
+    assert !new_custom_field.save
+  end
+  
+  def test_create_duplicate_different_step
+    assert  @custom_field.save
+    @custom_field.reload
+    
+    new_step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'step')
+    assert new_step.save
+    
+    new_custom_field = ProcessCustomField.new(:process_step => new_step, :name => 'custom_field', :field_format => 'float')
+    assert new_custom_field.save
+  end
+  
 end

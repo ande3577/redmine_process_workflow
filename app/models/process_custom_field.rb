@@ -32,5 +32,25 @@ class ProcessCustomField < CustomField
     self.destroy unless ProcessField.create(:process_step => process_step, :custom_field => self)
   end
   
+  validate do
+    #if we get an error that the name has already been taken, and it is the only name error,
+    # delete it if it is unique for the step
+    errors.each do |attribute, error|
+      if attribute == :name and errors.get(attribute).size == 1 and error == "has already been taken" and name_unique_for_step?()
+        errors.delete(attribute)
+      end
+    end
+  end
+  
+  private
+  def name_unique_for_step?()
+    for f in self.process_step.process_fields
+      if self.name = f.custom_field.name
+        return false
+      end
+    end
+    true
+  end
+  
 end
 
