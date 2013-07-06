@@ -5,9 +5,12 @@ class IssuesControllerTest < ActionController::TestCase
   fixtures :projects
   fixtures :issue_statuses
   fixtures :users
+  fixtures :projects_trackers
   
   def setup
-    @tracker = Tracker.first
+    @project = Project.first
+    
+    @tracker = @project.trackers.first
     @tracker.process_workflow = true
     @tracker.save
     @tracker.reload
@@ -19,8 +22,6 @@ class IssuesControllerTest < ActionController::TestCase
     
     @new_step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'new_step')
     assert @new_step.save
-      
-    @project = Project.first
     
     @role = ProcessRole.new(:name => 'role', :tracker => @tracker)
     assert @role.save
