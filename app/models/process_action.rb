@@ -9,8 +9,8 @@ class ProcessAction < ActiveRecord::Base
   
   validates_presence_of :issue, :process_field
   
-  def apply_action
-    return issue.apply_process_step_change(process_field.evaluate(value))
+  def apply_action(iss = self.issue)
+    return iss.apply_process_step_change(process_field.evaluate(value))
   end
   
   def customized

@@ -2,13 +2,13 @@
   <% @issue.tracker.process_roles.each do |role| %>
     <% if role.safe_attribute? 'name' %> 
       <p>
-        <% member = @process_members[role.name] %>
+        <% member = @issue.get_process_member(role.name) %>
         <label><%= role.name %></label><%= select_tag 'role[' + role.name + ']', principals_options_for_select(@issue.assignable_users, member.nil? ? nil : member.principal), :include_blank => :true %>
       </p>
     <% end %>
   <% end %>
   
-  <% step = @process_step.nil? ? @issue.tracker.process_steps.first : @process_step %>
+  <% step = @issue.process_step %>
   
   <% if User.current.allowed_to?(:set_process_step, @project, :global => false ) %>
     <p>
@@ -21,7 +21,7 @@
     <h3><%= step.name %></h3>
     <% step.process_fields.order("position ASC").each do |field| %>
       <p>
-        <% value = @process_actions[field.custom_field_id.to_s] %>
+        <% value = @issue.get_process_action(field.custom_field_id.to_s) %>
         <% value = ProcessAction.new(:issue_id => @issue.id, :process_field_id => field.id) if value.nil? %>
         <%= custom_field_tag_with_label 'process_fields', value, :required => @issue.required_attribute?(field.custom_field_id) %>
       </p>

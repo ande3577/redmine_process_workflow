@@ -6,25 +6,26 @@ class IssuesControllerTest < ActionController::TestCase
   fixtures :issue_statuses
   fixtures :users
   fixtures :projects_trackers
+  fixtures :groups_users
   
   def setup
     @project = Project.first
     
-    @tracker = @project.trackers.first
+    @tracker = Tracker.first
     @tracker.process_workflow = true
     @tracker.save
     @tracker.reload
   
-    @status = IssueStatus.first
+    @status = IssueStatus.find(2)
     
-    @step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'step')
+    @role = ProcessRole.new(:name => 'role', :tracker => @tracker)
+    assert @role.save 
+    
+    @step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'step', :process_role => @role)
     assert @step.save
     
     @new_step = ProcessStep.new(:tracker => @tracker, :issue_status => @status, :name => 'new_step')
     assert @new_step.save
-    
-    @role = ProcessRole.new(:name => 'role', :tracker => @tracker)
-    assert @role.save
     
     @custom_field = ProcessCustomField.new(:name => 'custom_field', :field_format => 'float', :process_step => @step)
     assert @custom_field.save
@@ -39,13 +40,15 @@ class IssuesControllerTest < ActionController::TestCase
     :subject => 'test_create',
     :description => 'IssueTest#test_create', :estimated_hours => '1:30')
     
+    @issue.set_process_member(@role.name, @admin)
+    
     assert @issue.save
+    @issue.reload
     
-    @member = ProcessMember.new(:issue => @issue, :process_role => @role, :principal => @admin)
-    assert @member.save
+    @member = @issue.get_process_member(@role.name)
+    assert @member
     
-    @action = @issue.process_actions.first
-    assert @action
+    @group = Group.first
     
   end
 
@@ -58,40 +61,18 @@ class IssuesControllerTest < ActionController::TestCase
       :process_step => @new_step.id, 
       :process_fields => { :custom_field_values => { @custom_field.id.to_s => "1.2345" } }
   
-    members = assigns[:process_members]
-    assert !members.nil?
-    assert members.any?
-    
-    member = assigns[:process_members][@role.name]
+    member = assigns[:issue].get_process_member(@role.name)
     assert_equal @role, member.process_role
     assert_equal @admin, member.principal
     
-    actions = assigns[:process_actions]
-    assert !actions.nil?
-    assert actions.any?
-    
-    action = actions[@custom_field.id.to_s]
+    action = assigns[:issue].get_process_action(@custom_field.id.to_s)
     assert action
     assert_equal @custom_field, action.process_field.custom_field
     assert_equal "1.2345", action.value
     
-    assert_equal @new_step, assigns[:process_step]
+    assert_equal @new_step, assigns[:issue].next_step
           
     assert_response :success
-  end
-  
-  def test_new_with_default_field_value
-    @custom_field.update_attribute(:default_value, "1.2345")
-    assert @custom_field.save
-    
-    get :new, :project_id => @project.id,
-      :role => { @role.name => @admin.id },
-      :process_step => @new_step.id
-     
-    action = assigns[:process_actions][@custom_field.id.to_s]
-    assert action
-    assert_equal @custom_field, action.process_field.custom_field
-    assert_equal "1.2345", action.value
   end
   
   def test_create
@@ -103,6 +84,8 @@ class IssuesControllerTest < ActionController::TestCase
     issue = Issue.last
     assert_redirected_to "/issues/#{issue.id}"
     
+    assert assigns[:issue].process_field_actions
+    
     member = ProcessMember.last
     assert_equal issue, member.issue
     assert_equal @admin, member.principal
@@ -112,23 +95,67 @@ class IssuesControllerTest < ActionController::TestCase
     assert_equal "1.2345", action.value
     
     
-    members = assigns[:process_members]
-    assert !members.nil?
-    assert members.any?
-    
-    member = assigns[:process_members][@role.name]
+    member = assigns[:issue].get_process_member(@role.name)
     assert_equal @role, member.process_role
     assert_equal @admin, member.principal
     
-    actions = assigns[:process_actions]
-    assert !actions.nil?
-    assert actions.any?
-    
-    action = actions[@custom_field.id.to_s]
+    action = assigns[:issue].get_process_action(@custom_field.id.to_s)
     assert action
     assert_equal @custom_field, action.process_field.custom_field
     assert_equal "1.2345", action.value
     
+    assert_equal @admin, issue.assigned_to
+    assert_equal @status, issue.status
+    
+  end
+  
+  def test_create_with_group
+    assert_difference ['Issue.count', 'ProcessMember.count'] do
+      post :create, :project_id => @project.id, :issue => { :subject => 'New issue', :tracker_id => @tracker.id }, 
+        :role => { @role.name => @group.id }
+    end
+    issue = Issue.last
+    assert_redirected_to "/issues/#{issue.id}"
+    
+    assert assigns[:issue].process_field_actions
+    
+    member = ProcessMember.last
+    assert_equal issue, member.issue
+    assert_equal @group, member.principal
+    
+    
+    member = assigns[:issue].get_process_member(@role.name)
+    assert_equal @role, member.process_role
+    assert_equal @group, member.principal
+    
+    assert_equal @group, issue.assigned_to
+    
+  end
+
+  
+  def test_create_without_required
+    @custom_field.is_required  = true
+    assert @custom_field.save
+    
+    assert_difference ['Issue.count', 'ProcessAction.count', 'ProcessMember.count'], 0 do
+      post :create, :project_id => @project.id, :issue => { :subject => 'New issue', :tracker_id => @tracker.id }, 
+        :role => { @role.name => @admin.id },
+        :process_fields => { :custom_field_values => { @custom_field.id.to_s => "" } }
+    end
+    
+    assert_response 200
+  end
+  
+  def test_create_with_required
+    @custom_field.is_required  = true
+    assert @custom_field.save
+    
+    assert_difference ['Issue.count', 'ProcessAction.count', 'ProcessMember.count'] do
+      post :create, :project_id => @project.id, :issue => { :subject => 'New issue', :tracker_id => @tracker.id }, 
+        :role => { @role.name => @admin.id },
+        :process_fields => { :custom_field_values => { @custom_field.id.to_s => "1.2345" } }
+    end
+    assert_redirected_to "/issues/#{Issue.last.id}"
   end
   
   def test_update
@@ -139,26 +166,15 @@ class IssuesControllerTest < ActionController::TestCase
         
     assert_redirected_to "/issues/#{@issue.id}"
     
-    @issue.reload
-    @member.reload
-    @action.reload
-    
-    assert_equal 'Change subject', @issue.subject
-    assert_equal new_user, @member.principal
-    assert_equal "2.345", @action.value
+    assert_equal 'Change subject', assigns[:issue].subject
    
-    members = assigns[:process_members]
-    assert !members.nil?
-    assert members.any?
+    assert_equal new_user, assigns[:issue].get_process_member(@role.name).principal
     
-    assert_equal @member, members[@role.name]
-    
-    actions = assigns[:process_actions]
-    assert !actions.nil?
-    assert actions.any?
-    assert_equal @action, assigns[:process_actions][@custom_field.id.to_s]
+    action = assigns[:issue].get_process_action(@custom_field.id.to_s)
+    assert action
+    assert_equal "2.345", action.value
       
-    assert_equal @step, assigns[:process_step]
+    assert_equal @step, assigns[:issue].process_step
     
   end
   
@@ -172,10 +188,10 @@ class IssuesControllerTest < ActionController::TestCase
     assert_response 200
     
     assert_equal '', assigns[:issue].subject
-    assert_equal new_user, assigns[:process_members][@role.name].principal
-    assert_equal "2.345", assigns[:process_actions][@custom_field.id.to_s].value
+    assert_equal new_user, assigns[:issue].get_process_member(@role.name).principal
+    assert_equal "2.345", assigns[:issue].get_process_action(@custom_field.id.to_s).value
    
-    assert_equal @new_step, assigns[:process_step]
+    assert_equal @new_step, assigns[:issue].next_step
   end
   
   def test_show
@@ -183,18 +199,8 @@ class IssuesControllerTest < ActionController::TestCase
     
     assert_response 200
     
-    members = assigns[:process_members]
-    assert !members.nil?
-    assert members.any?
-   
-    assert_equal @member, members[@role.name]
-   
-    actions = assigns[:process_actions]
-    assert !actions.nil?
-    assert actions.any?
-    assert_equal @action, assigns[:process_actions][@custom_field.id.to_s]
-       
-    assert_equal @step, assigns[:process_step]
+  
+    assert_equal @issue, assigns[:issue]
   end
   
 end

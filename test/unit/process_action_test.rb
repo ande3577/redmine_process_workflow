@@ -15,7 +15,11 @@ class ProcessActionTest < ActiveSupport::TestCase
   def setup
     @status = IssueStatus.first
     @custom_field = CustomField.first
+    
     @tracker = Tracker.first
+    @tracker.process_workflow = true
+    assert @tracker.save
+    
     @next_status = IssueStatus.find(2)
     
     @step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => @tracker)
@@ -33,8 +37,8 @@ class ProcessActionTest < ActiveSupport::TestCase
     @issue = Issue.first
     assert @issue.save
     
-    @process_state = ProcessState.new(:issue => @issue, :process_step => @step)
-    assert @process_state.save
+    @process_state = @issue.process_state
+    assert @process_state
     
     @timestamp = Time.now
 
