@@ -26,6 +26,7 @@ module ProcessWorkflowIssuesHelperPatch
           s << ("<em>" + l(:label_process_current_step, :step => issue.process_step.name) + "</em>").html_safe
         end
     end 
+    s
   end
   
 end
