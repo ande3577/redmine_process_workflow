@@ -10,6 +10,7 @@ module ProcessWorkflowIssuePatch
       has_many :process_members, :dependent => :destroy
       after_create :init_process
       validate :validate_process_fields
+      validate :validate_process_roles
       before_save :apply_next_step
       before_save :apply_process_actions
       alias_method_chain :safe_attribute?, :process
@@ -113,6 +114,16 @@ module ProcessWorkflowIssuePatch
         custom_field = field.custom_field
         if custom_field.is_required? and (self.process_field_actions[custom_field.id.to_s].nil? or self.process_field_actions[custom_field.id.to_s].value.nil? or self.process_field_actions[custom_field.id.to_s].value.blank?)
           errors.add :base, custom_field.name + ' ' + l('activerecord.errors.messages.blank')
+        end
+      end
+    end
+    
+    def validate_process_roles
+      return unless tracker.process_workflow?
+      
+      for role in tracker.process_roles
+        if role.is_required? and (self.process_member_list[role.name].nil? or self.process_member_list[role.name].principal.nil?)
+          errors.add :base, role.name + ' ' + l('activerecord.errors.messages.blank')
         end
       end
     end

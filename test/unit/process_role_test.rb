@@ -17,6 +17,7 @@ class ProcessRoleTest < ActiveSupport::TestCase
     
     assert_equal @tracker, role.tracker
     assert_equal 'name', role.name
+    assert !role.is_required?
   end
   
   def test_destroy_trackerr
@@ -51,5 +52,14 @@ class ProcessRoleTest < ActiveSupport::TestCase
     
     assert_equal 1, role.process_members.count
     assert_equal member, role.process_members.first
+  end
+  
+  def test_is_required
+    role = ProcessRole.new(:tracker => @tracker, :name => 'name', :is_required => true)
+    assert role.save
+    
+    assert role.is_required?
+    role.is_required = false
+    assert !role.is_required?
   end
 end

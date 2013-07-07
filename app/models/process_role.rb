@@ -3,7 +3,7 @@ class ProcessRole < ActiveRecord::Base
   
   include Redmine::SafeAttributes
   
-  safe_attributes 'name', 'move_to'
+  safe_attributes 'name', 'is_required', 'move_to'
   
   belongs_to :tracker
   has_many :process_members, :dependent => :destroy
@@ -12,5 +12,8 @@ class ProcessRole < ActiveRecord::Base
   validates :name, :length => { :minimum => 1 }
   acts_as_list :scope => :tracker
   
-    
+   
+  def is_required?
+    self.is_required
+  end
 end

@@ -167,6 +167,21 @@ class IssueTest < ActiveSupport::TestCase
     assert @issue.save
   end
   
+  def test_missing_required_roles
+    @role.is_required = true
+    assert @role.save
+    
+    @issue.set_process_member(@role.name, '')
+    assert !@issue.save
+  end
+  
+  def test_validate_required_roles
+    @role.is_required = true
+    assert @role.save
+    
+    assert @issue.save
+  end
+  
   def test_sort_steps
     @next_step.move_to_top
     @next_step.save

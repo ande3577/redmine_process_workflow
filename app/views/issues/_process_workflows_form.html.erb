@@ -3,7 +3,9 @@
     <% if role.safe_attribute? 'name' %> 
       <p>
         <% member = @issue.get_process_member(role.name) %>
-        <label><%= role.name %></label><%= select_tag 'role[' + role.name + ']', principals_options_for_select(@issue.assignable_users, member.nil? ? nil : member.principal), :include_blank => :true %>
+        <% principal = member.principal unless member.nil? %>
+        <%= content_tag("label", (role.name + (role.is_required? ? content_tag("span", " *", :class => "required"): "")).html_safe) %>
+        <%= select_tag 'role[' + role.name + ']', principals_options_for_select(@issue.assignable_users, principal), :include_blank => (!role.is_required? or principal.nil?)  %>
       </p>
     <% end %>
   <% end %>

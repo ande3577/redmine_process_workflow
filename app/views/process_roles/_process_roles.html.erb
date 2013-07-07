@@ -6,6 +6,7 @@
   <table class="list">
     <thead><tr>
     <th><%=l(:field_name)%></th>
+    <th><%=l(:label_required)%></th>
     <th></th>
     <th></th>
     <th></th>
@@ -14,6 +15,7 @@
   <% @roles.each do |role| %>
     <tr class="<%= cycle 'odd', 'even' %>">
       <td align="center"><%= role.name %></td>
+      <td align="center"><%= role.is_required? %></td>
       <td align="center" style="width:15%;"><%= reorder_links('process_role', {:controller => 'process_roles', :action => 'update', :id => role}, :put) %></td>
       <td class="buttons"><%= link_to l(:button_edit), { :controller => 'process_roles', :action => 'edit', :id => role.id }, {:class => 'icon icon-edit'} %></td>
       <td class="buttons"><%= delete_link role %></td>
