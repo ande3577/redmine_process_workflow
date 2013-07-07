@@ -78,7 +78,7 @@ class ProcessMemberTest < ActiveSupport::TestCase
   
   def test_create_without_user
     member = ProcessMember.new(:process_role => @process_role, :issue => @issue)
-    assert !member.save
+    assert member.save
   end
   
   def test_create_without_issue
