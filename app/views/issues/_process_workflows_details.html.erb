@@ -14,7 +14,7 @@
           <td>
           <% action = @issue.get_process_action(field.custom_field.id.to_s) %>
           <% if !action.nil? && !action.user_id.nil?%>
-          <%= action.value %><br>
+          <%= simple_format_without_paragraph(h(show_value(action))) %><br>
           <em>
           <%= l(:label_updated_time_by, :author => link_to_user(User.where(:id => action.user_id).first), :age => time_tag(action.timestamp)).html_safe %>
           </em>
