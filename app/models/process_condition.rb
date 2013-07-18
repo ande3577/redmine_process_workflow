@@ -22,7 +22,7 @@ class ProcessCondition < ActiveRecord::Base
   belongs_to :step_if_false, :class_name => 'ProcessStep', :foreign_key => 'step_if_false_id'
   validates_with NextStepValidator
   
-  validates :comparison_mode, :inclusion => { :in => %w(eql? ne? regex always never) }
+  validates :comparison_mode, :inclusion => { :in => %w(eql? ne? regex) }
     
   def comparison_value
     return read_attribute(:comparison_value) if read_attribute(:comparison_value)

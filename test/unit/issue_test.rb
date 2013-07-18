@@ -329,6 +329,53 @@ class IssueTest < ActiveSupport::TestCase
     
   end
   
+  def test_apply_default_step
+    @step.default_next_step  = @next_step
+    @step.save
+    @issue.process_step.reload
+    
+    assert @issue.save
+    @issue.reload
+    
+    assert_equal @next_step, @issue.process_step
+  end
+  
+  def test_skip_default_step_if_condition_met
+    condition = ProcessCondition.new(:comparison_mode => 'eql?', :comparison_value => "2.345", :step_if_true => @next_step, :process_field => @field)
+    assert condition.save
+    
+    default_step = ProcessStep.new(:name => 'next_step', :issue_status => @next_status, :tracker => @tracker, :process_role_id => @next_role.id)
+    assert default_step.save
+    @step.default_next_step = default_step
+    @step.save
+    @issue.process_step.reload
+
+    assert @issue.set_process_action(@custom_field.id.to_s, "2.345")
+    assert @issue.save
+    @issue.reload
+    
+    action = ProcessAction.where(:issue_id => @issue.id, :process_field_id => @field.id).first
+    assert action
+    assert_equal "2.345", action.value
+    
+    assert_equal @next_step, @issue.process_step
+  end
+  
+  def test_skip_default_step_if_next_step_set
+    default_step = ProcessStep.new(:name => 'next_step', :issue_status => @next_status, :tracker => @tracker, :process_role_id => @next_role.id)
+    assert default_step.save
+    @step.default_next_step = default_step
+    @step.save
+    @issue.process_step.reload
+
+    @issue.next_step = @next_step
+    assert @issue.save
+    @issue.reload
+    
+    assert_equal @next_step, @issue.process_step
+    
+  end
+  
   def test_create_with_member
     new_issue = Issue.new(:project_id => 1, :tracker => @tracker, :author_id => 3,
     :status_id => 1, :priority => IssuePriority.all.first,

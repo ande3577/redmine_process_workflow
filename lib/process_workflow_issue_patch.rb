@@ -11,8 +11,10 @@ module ProcessWorkflowIssuePatch
       after_create :init_process
       validate :validate_process_fields
       validate :validate_process_roles
+      before_save :clear_step_changed
       before_save :apply_next_step
       before_save :apply_process_actions
+      before_save :apply_default_next_step
       alias_method_chain :safe_attribute?, :process
       before_save {|issue| issue.send :after_tracker_change if !issue.id_changed? && issue.tracker_id_changed?}
       after_save :save_process_members
@@ -23,6 +25,7 @@ module ProcessWorkflowIssuePatch
       after_initialize :initialize_process_members
       attr_accessor 'process_member_list'
       attr_accessor 'next_step'
+      attr_accessor 'step_changed'
     end
   end
   
@@ -44,6 +47,7 @@ module ProcessWorkflowIssuePatch
         next_assignee = next_member.principal unless next_member.nil?
       end
       self.assigned_to = next_assignee unless next_assignee.nil?
+      self.step_changed = true
       true
     end
     
@@ -161,11 +165,23 @@ module ProcessWorkflowIssuePatch
     end
   end
   
+  def clear_step_changed
+    self.step_changed = false
+    true
+  end
+  
   def apply_next_step
     if self.tracker.process_workflow? and !self.next_step.nil? and self.next_step != self.process_step
       step = self.next_step
       self.next_step = nil
       apply_process_step_change(step)
+    end
+  end
+  
+  def apply_default_next_step
+    if self.tracker.process_workflow? and !self.step_changed
+      next_step = self.process_step.default_next_step unless self.process_step.nil?
+      apply_process_step_change(next_step) unless next_step.nil?
     end
   end
   

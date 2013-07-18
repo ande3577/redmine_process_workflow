@@ -165,18 +165,4 @@ class ProcessConditionTest < ActiveSupport::TestCase
     assert !@condition.evaluate('12345')
   end
   
-  def test_evaluate_any
-    @condition.comparison_mode = 'always'
-    assert @condition.save
-    
-    assert @condition.evaluate('any_value')
-  end
-  
-  def test_evaluate_none
-    @condition.comparison_mode = 'never'
-    assert @condition.save
-    
-    assert !@condition.evaluate('new_value')
-  end
-  
 end

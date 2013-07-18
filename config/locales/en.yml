@@ -15,6 +15,7 @@ en:
   field_comparison_value: "Comparison Value"
   field_step_if_true: "Next Step if True"
   field_step_if_false: "Next Step if False"
+  field_default_next_step: "Default Next Step"
   label_process_current_step_by: "Waiting for %{user} to %{step}"
   label_process_current_step: "Waiting for %{step}"
   label_condition_new: "New Condition"

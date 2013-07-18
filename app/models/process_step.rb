@@ -4,7 +4,7 @@ class ProcessStep < ActiveRecord::Base
   
   AUTHOR = -1
   
-  safe_attributes 'process_role_id', 'issue_status_id', 'name', 'move_to'
+  safe_attributes 'process_role_id', 'issue_status_id', 'name', 'move_to', 'default_next_step_id'
   
   belongs_to :tracker
   acts_as_list :scope => :tracker
@@ -12,11 +12,15 @@ class ProcessStep < ActiveRecord::Base
   belongs_to :issue_status
   has_many :process_fields, :dependent => :destroy
   has_many :process_states, :dependent => :destroy
+  
+  belongs_to :default_next_step, class_name: "ProcessStep", foreign_key: :default_next_step_id
 
   validates_presence_of :tracker, :issue_status
   validates :name, :length => { :minimum => 1 }
     
   after_save :update_issues_assigned_to
+  
+  after_destroy :clear_default_next_step
     
   def process_role
     ProcessRole.where(:id => self.process_role_id).first
@@ -47,6 +51,12 @@ class ProcessStep < ActiveRecord::Base
       return true
     else
       return false
+    end
+  end
+  
+  def clear_default_next_step
+    ProcessStep.where(:default_next_step_id => self.id).each do |s|
+      s.update_attribute(:default_next_step_id, nil)
     end
   end
   

@@ -89,4 +89,22 @@ class ProcessStepTest < ActiveSupport::TestCase
             
     assert_equal true, step.role_is_author?
   end
+  
+  def test_default_next_step
+    step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => @tracker)
+    assert step.save
+    step.reload
+    
+    assert_equal nil, step.default_next_step
+    
+    new_step = ProcessStep.new(:name => 'name', :issue_status => @status, :tracker => @tracker, :default_next_step_id => step.id)
+    assert new_step.save
+    
+    assert_equal step, new_step.default_next_step
+    
+    step.destroy
+    new_step.reload
+    assert_equal nil, new_step.default_next_step_id
+  end
+  
 end
