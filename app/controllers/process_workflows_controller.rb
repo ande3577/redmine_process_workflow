@@ -38,7 +38,7 @@ class ProcessWorkflowsController < ApplicationController
   def update
     if @tracker.update_attributes(params[:tracker])
       flash[:notice] = l(:notice_successful_update)
-      redirect_to :action => :index
+      redirect_to :action => :edit, :id => @tracker.id
       return
     end
     render :action => 'edit'

@@ -68,8 +68,8 @@ class ProcessStepsControllerTest < ActionController::TestCase
     assert_difference 'ProcessStep.count' do
           post :create, :tracker_id => @tracker.id, :process_step => { :name => 'New step', :issue_status_id => @status.id, :process_role_id => @role.id }
     end
-    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => @tracker.id
     step = ProcessStep.first(:order => 'id DESC')
+    assert_redirected_to :controller => :process_steps, :action => 'edit', :id => step.id
     assert_equal 'New step', step.name
     assert_equal @status, step.issue_status
     assert_equal @tracker, step.tracker
@@ -88,8 +88,8 @@ class ProcessStepsControllerTest < ActionController::TestCase
     assert_difference 'ProcessStep.count' do
           post :create, :tracker_id => @tracker.id, :process_step => { :name => 'New step', :issue_status_id => @status.id, :process_role_id => ProcessStep::AUTHOR }
     end
-    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => @tracker.id
     step = ProcessStep.first(:order => 'id DESC')
+    assert_redirected_to :controller => :process_steps, :action => 'edit', :id => step.id
     assert step.role_is_author?
   end
   
@@ -101,7 +101,7 @@ class ProcessStepsControllerTest < ActionController::TestCase
     
     flash[:notice] = nil
     post :update, :id => @step.id, :process_step => { :name => 'Updated name', :issue_status_id => new_status.id, :tracker_id => new_tracker.id, :process_role_id => new_role.id }
-    assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => @tracker.id
+    assert_redirected_to :controller => :process_steps, :action => 'edit', :id => @step.id
     @step.reload
     assert_equal 'Updated name', @step.name
     assert_equal new_status, @step.issue_status
@@ -112,7 +112,7 @@ class ProcessStepsControllerTest < ActionController::TestCase
   
   def test_update_with_author
      post :update, :id => @step.id, :process_step => { :process_role_id => ProcessStep::AUTHOR }
-     assert_redirected_to :controller => :process_workflows, :action => 'edit', :id => @tracker.id
+     assert_redirected_to :controller => :process_steps, :action => 'edit', :id => @step.id
      @step.reload
      assert @step.role_is_author?
    end

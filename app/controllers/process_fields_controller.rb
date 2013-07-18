@@ -23,7 +23,7 @@ class ProcessFieldsController < ApplicationController
   def create
     @custom_field.process_step = @step
     if @custom_field.save
-      redirect_to :controller => :process_steps, :action => :edit, :id => @step.id
+      redirect_to :action => :edit, :id => @custom_field.process_field.id
       return
     end
     new
@@ -33,7 +33,7 @@ class ProcessFieldsController < ApplicationController
   def update
     if @field.update_attributes(params[:process_field]) and @custom_field.update_attributes(params[:process_custom_field])
       flash[:notice] = l(:notice_successful_update)
-      redirect_to :controller => :process_steps, :action => :edit, :id => @field.process_step.id
+      redirect_to :action => :edit, :id => @field.id
       return
     end
     @custom_field.reload

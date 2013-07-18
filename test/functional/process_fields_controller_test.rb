@@ -74,10 +74,11 @@ class ProcessFieldsControllerTest < ActionController::TestCase
     assert_difference ['ProcessField.count', 'ProcessCustomField.count'] do
           post :create, :process_step_id => @step.id, :process_custom_field => { :name => 'new_custom_field', :field_format => 'float' }
     end
-    assert_redirected_to :controller => :process_steps, :action => :edit, :id => @step.id
     
     new_field = ProcessField.last
     assert_equal @step, new_field.process_step
+    
+    assert_redirected_to :controller => :process_fields, :action => :edit, :id => new_field.id
     
     new_custom_field = ProcessCustomField.last
     assert_equal new_custom_field, new_field.custom_field
@@ -92,10 +93,10 @@ class ProcessFieldsControllerTest < ActionController::TestCase
     assert_response 200
     assert_template :new
   end
-  
+ 
   def test_update
     post :update, :id => @field.id, :process_custom_field => { :name => 'new_name' }
-    assert_redirected_to :controller => :process_steps, :action => :edit, :id => @step.id  
+    assert_redirected_to :controller => :process_fields, :action => :edit, :id => @field.id  
     
     @custom_field.reload
     assert_equal 'new_name', @custom_field.name

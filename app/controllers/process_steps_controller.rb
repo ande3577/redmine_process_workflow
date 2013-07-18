@@ -20,7 +20,8 @@ class ProcessStepsController < ApplicationController
   def create
     @step.tracker = @tracker
     if @step.save
-      redirect_to :controller => :process_workflows, :action => :edit, :id => @tracker.id
+      @step.reload
+      redirect_to :action => :edit, :id => @step.id
       return
     end
     render :action => :new
@@ -30,7 +31,7 @@ class ProcessStepsController < ApplicationController
     @step.safe_attributes = params[:process_step]
     if @step.save
       flash[:notice] = l(:notice_successful_update)
-      redirect_to :controller => :process_workflows, :action => :edit, :id => @step.tracker_id
+      redirect_to :action => :edit, :id => @step.id
       return
     end
     edit

@@ -114,6 +114,14 @@ class ProcessWorkflowsControllerTest < ActionController::TestCase
     assert_equal 0, tracker.workflow_rules.count
   end
   
+  def test_update
+    @request.session[:user_id] = @admin.id
+    post :update, :id => @tracker.id, :tracker => { :name => 'Rename tracker', :project_ids => ['1', '', ''], :custom_field_ids => ['1', '6', ''] }
+    @tracker.reload
+    assert_equal 'Rename tracker', @tracker.name
+    assert_redirected_to :action => 'edit', :id => @tracker.id
+  end
+  
 def test_destroy_with_issues
   @request.session[:user_id] = @admin.id
     
