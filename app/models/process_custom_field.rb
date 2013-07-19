@@ -25,6 +25,10 @@ class ProcessCustomField < CustomField
     ProcessField.where(:custom_field_id => self.id).first
   end
   
+  def visible_by?(project, user=User.current)
+    visible? || user.admin? || (roles & user.roles_for_project(project)).present?
+  end
+  
   validates_with ProcessStepValidator
   
   after_create do

@@ -326,7 +326,6 @@ class IssueTest < ActiveSupport::TestCase
     assert_equal "2.345", action.value
     
     assert_equal @next_step, @issue.process_step
-    
   end
   
   def test_apply_default_step
@@ -400,6 +399,16 @@ class IssueTest < ActiveSupport::TestCase
     state = ProcessState.where(:issue_id => @issue.id).first
     assert state
     assert_equal @next_step, state.process_step
+  end
+  
+  def test_initial_step_values
+    assert @issue.set_process_action(@custom_field.id.to_s, "2.345")
+    assert @issue.save
+    
+    assert_equal nil, @issue.initial_process_field_values[@field.id], "initial value nil on initial save"
+    assert @issue.set_process_action(@custom_field.id.to_s, "3.456")
+    assert @issue.save
+    assert_equal "2.345", @issue.initial_process_field_values[@field.id], "value updated after second save"
   end
   
 end

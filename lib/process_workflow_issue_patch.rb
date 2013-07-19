@@ -13,9 +13,11 @@ module ProcessWorkflowIssuePatch
       validate :validate_process_roles
       before_save :clear_step_changed
       before_save :apply_next_step
+      before_save :initialize_process_field_values
       before_save :apply_process_actions
       before_save :apply_default_next_step
       alias_method_chain :safe_attribute?, :process
+      alias_method_chain :create_journal, :process_actions
       before_save {|issue| issue.send :after_tracker_change if !issue.id_changed? && issue.tracker_id_changed?}
       after_save :save_process_members
       after_save :save_process_state
@@ -26,6 +28,8 @@ module ProcessWorkflowIssuePatch
       attr_accessor 'process_member_list'
       attr_accessor 'next_step'
       attr_accessor 'step_changed'
+      attr_accessor 'initial_step'
+      attr_accessor 'initial_process_field_values'
     end
   end
   
@@ -140,6 +144,16 @@ module ProcessWorkflowIssuePatch
       self.process_field_actions ||= {} # just in case the :attachments were passed to .new
     end
     
+    def initialize_process_field_values
+      self.initial_process_field_values ||= {}
+      if tracker.process_workflow?
+        process_step.process_fields.each do |field|
+          action = ProcessAction.where(:issue_id => self.id, :process_field_id => field.id).first
+          self.initial_process_field_values[field.id] = action.value unless action.nil?
+        end
+      end
+    end
+    
     def current_step
       step = read_attribute(:current_step).nil?
       step = process_step if step.nil?
@@ -167,6 +181,7 @@ module ProcessWorkflowIssuePatch
   
   def clear_step_changed
     self.step_changed = false
+    self.initial_step = self.process_step
     true
   end
   
@@ -228,6 +243,26 @@ module ProcessWorkflowIssuePatch
     process_field_actions.each do |custom_field_id_string, a|
       a.save
     end
+  end
+  
+  def create_journal_with_process_actions
+    create_journal_without_process_actions
+    return true if !self.tracker.process_workflow? or @current_journal.nil?
+    if self.initial_step != self.process_step
+      @current_journal.details << JournalDetail.create(:property => 'attr',
+                        :prop_key => 'process_step',
+                        :old_value => self.initial_step.name,
+                        :value => self.process_step.name)
+    end
+    
+    process_field_actions.each do |custom_field_id_string, a|
+      if a.value != self.initial_process_field_values[a.process_field_id]
+        @current_journal.details << JournalDetail.create(:property => 'cf',
+                          :prop_key => a.process_field.custom_field_id,
+                          :value => a.value)
+      end
+    end
+    @current_journal.save
   end
   
   
