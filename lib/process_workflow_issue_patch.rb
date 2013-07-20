@@ -265,36 +265,35 @@ module ProcessWorkflowIssuePatch
   end
   
   def create_journal_with_process_info
+    if self.tracker.process_workflow? and !@current_journal.nil?
+      if self.initial_step != self.process_step
+        @current_journal.details << JournalDetail.create(:property => 'attr',
+                          :prop_key => 'process_step',
+                          :old_value => self.initial_step.name,
+                          :value => self.process_step.name)
+      end
+  
+      process_member_list.each do |role_name, member|
+        initial_member = self.initial_process_members[role_name]
+        if !initial_member.nil? and (member.user_id != initial_member.user_id)
+          @current_journal.details << JournalDetail.create(:property => 'process_role',
+                :prop_key => role_name,
+                :old_value => initial_member.principal.nil? ? nil : initial_member.principal.name,
+                :value => member.principal.nil? ? nil : member.principal.name
+              )
+        end
+      end
+      
+      process_field_actions.each do |custom_field_id_string, a|
+        if a.value != self.initial_process_field_values[a.process_field_id]
+          @current_journal.details << JournalDetail.create(:property => 'cf',
+                            :prop_key => a.process_field.custom_field_id,
+                            :value => a.value)
+        end
+      end
+    end
+    
     create_journal_without_process_info
-    return true if !self.tracker.process_workflow? or @current_journal.nil?
-    
-    if self.initial_step != self.process_step
-      @current_journal.details << JournalDetail.create(:property => 'attr',
-                        :prop_key => 'process_step',
-                        :old_value => self.initial_step.name,
-                        :value => self.process_step.name)
-    end
-
-    process_member_list.each do |role_name, member|
-      initial_member = self.initial_process_members[role_name]
-      if !initial_member.nil? and (member.user_id != initial_member.user_id)
-        @current_journal.details << JournalDetail.create(:property => 'process_role',
-              :prop_key => role_name,
-              :old_value => initial_member.principal.nil? ? nil : initial_member.principal.name,
-              :value => member.principal.nil? ? nil : member.principal.name
-            )
-      end
-    end
-    
-    process_field_actions.each do |custom_field_id_string, a|
-      if a.value != self.initial_process_field_values[a.process_field_id]
-        @current_journal.details << JournalDetail.create(:property => 'cf',
-                          :prop_key => a.process_field.custom_field_id,
-                          :value => a.value)
-      end
-    end
-    
-    @current_journal.save
   end
   
   

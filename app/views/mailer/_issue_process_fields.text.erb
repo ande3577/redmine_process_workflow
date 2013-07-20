@@ -1,0 +1,19 @@
+<%if issue.tracker.process_workflow? %>
+<%if !issue.tracker.process_roles.empty? %>
+
+<%= l(:label_role_plural) %>
+  <% issue.tracker.process_roles.each do |role| %>
+* <%= role.name %>: <%= issue.process_member_list[role.name].principal.name unless issue.process_member_list[role.name].nil? or issue.process_member_list[role.name].principal.nil? %>
+  <% end %>
+<% end %>
+
+<% issue.tracker.process_steps.each do |step| %>
+    <% unless step.process_fields.empty? %>
+<%= step.name %>
+      <% step.process_fields.each do |field| %>
+  * <%= field.custom_field.name %>: <%= issue.get_process_action(field.custom_field_id.to_s) %>
+      <% end %>
+    <% end %>
+  <% end %>
+
+<% end %>

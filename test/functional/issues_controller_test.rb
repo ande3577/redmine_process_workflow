@@ -109,6 +109,19 @@ class IssuesControllerTest < ActionController::TestCase
     
   end
   
+  def test_create_email
+     post :create, :project_id => @project.id, :issue => { :subject => 'New issue', :tracker_id => @tracker }, 
+       :role => { @role.name => @admin.id },
+       :process_fields => { :custom_field_values => { @custom_field.id.to_s => "1.2345" } }
+         
+     issue = Issue.last
+     
+     issue_email = ActionMailer::Base.deliveries.last
+     
+     assert_mail_body_match "role: #{@admin.name}", issue_email
+     assert_mail_body_match "custom_field: 1.2345", issue_email
+  end
+  
   def test_create_with_group
     assert_difference ['Issue.count', 'ProcessMember.count'] do
       post :create, :project_id => @project.id, :issue => { :subject => 'New issue', :tracker_id => @tracker.id }, 
@@ -160,9 +173,13 @@ class IssuesControllerTest < ActionController::TestCase
   
   def test_update
     new_user = User.find(2)
-    post :update, :id => @issue.id, :issue => { :subject => 'Change subject', :tracker_id => @tracker.id }, 
-      :role => { @role.name => new_user.id },
-      :process_fields => { :custom_field_values => { @custom_field.id.to_s => "2.345" } }
+    assert_difference ['Journal.count'] do
+      assert_difference ['JournalDetail.count'], 4 do 
+        post :update, :id => @issue.id, :issue => { :subject => 'Change subject', :tracker_id => @tracker.id }, 
+          :role => { @role.name => new_user.id },
+          :process_fields => { :custom_field_values => { @custom_field.id.to_s => "2.345" } }
+      end
+    end
         
     assert_redirected_to "/issues/#{@issue.id}"
     
@@ -176,6 +193,21 @@ class IssuesControllerTest < ActionController::TestCase
       
     assert_equal @step, assigns[:issue].process_step
     
+  end
+  
+  def test_update_email
+    new_user = User.find(2)
+    post :update, :id => @issue.id, :issue => { :subject => 'Change subject', :tracker_id => @tracker.id }, 
+      :role => { @role.name => new_user.id },
+      :process_fields => { :custom_field_values => { @custom_field.id.to_s => "2.345" } }
+        
+    issue_email = ActionMailer::Base.deliveries.last
+    
+    assert_mail_body_match "role: #{new_user.name}", issue_email
+    assert_mail_body_match "custom_field: 2.345", issue_email
+    
+    assert_mail_body_match "role set to #{new_user.name}", issue_email
+    assert_mail_body_match "custom_field set to 2.345", issue_email
   end
   
   def test_update_invalid
