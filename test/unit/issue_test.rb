@@ -191,9 +191,7 @@ class IssueTest < ActiveSupport::TestCase
     :subject => 'test_sort_steps',
     :description => 'IssueTest#test_sort_steps', :estimated_hours => '1:30')
     
-    new_member = ProcessMember.new(:process_role => @next_role, :principal => @next_user, :issue => new_issue)
-    assert new_member.save
-    
+    new_issue.set_process_member(@next_role.name, @next_user.id)
     assert new_issue.save
     new_issue.reload
     
@@ -203,18 +201,20 @@ class IssueTest < ActiveSupport::TestCase
   end
   
   def test_update_assign_when_changing_member
-    @member.principal = @next_user
-    @member.save
-    @issue.reload
-    
+    @issue.set_process_member(@role.name, @next_user.id)
+    @issue.save
+
+    @member.reload
+    assert_equal @next_user, @member.principal    
     assert_equal @next_user, @issue.assigned_to
   end
   
   def test_update_assigned_when_changing_to_group
-    @member.principal = @group
-    @member.save
-    @issue.reload
+    @issue.set_process_member(@role.name, @group.id)
+    @issue.save
     
+    @member.reload
+    assert_equal @group, @member.principal
     assert_equal @group, @issue.assigned_to
   end
   
@@ -409,6 +409,13 @@ class IssueTest < ActiveSupport::TestCase
     assert @issue.set_process_action(@custom_field.id.to_s, "3.456")
     assert @issue.save
     assert_equal "2.345", @issue.initial_process_field_values[@field.id], "value updated after second save"
+  end
+  
+  def test_initial_member_roles
+    @issue.set_process_member(@role.name, @next_user.id)
+    assert @issue.save
+    
+    assert_equal @user, @issue.initial_process_members[@role.name]
   end
   
 end

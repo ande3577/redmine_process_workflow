@@ -11,14 +11,16 @@ module ProcessWorkflowIssuePatch
       after_create :init_process
       validate :validate_process_fields
       validate :validate_process_roles
+      before_save {|issue| issue.send :after_tracker_change if !issue.id_changed? && issue.tracker_id_changed?}
       before_save :clear_step_changed
       before_save :apply_next_step
+      before_save :initialize_member_roles
       before_save :initialize_process_field_values
       before_save :apply_process_actions
       before_save :apply_default_next_step
+      before_save :apply_process_role
       alias_method_chain :safe_attribute?, :process
-      alias_method_chain :create_journal, :process_actions
-      before_save {|issue| issue.send :after_tracker_change if !issue.id_changed? && issue.tracker_id_changed?}
+      alias_method_chain :create_journal, :process_info
       after_save :save_process_members
       after_save :save_process_state
       after_save :save_process_actions
@@ -29,6 +31,7 @@ module ProcessWorkflowIssuePatch
       attr_accessor 'next_step'
       attr_accessor 'step_changed'
       attr_accessor 'initial_step'
+      attr_accessor 'initial_process_members'
       attr_accessor 'initial_process_field_values'
     end
   end
@@ -43,14 +46,6 @@ module ProcessWorkflowIssuePatch
       self.status = step.issue_status
       
       self.process_step = step
-      
-      if step.role_is_author?
-        next_assignee = self.author
-      else
-        next_member = get_process_member(step.process_role.name) unless step.process_role.nil?
-        next_assignee = next_member.principal unless next_member.nil?
-      end
-      self.assigned_to = next_assignee unless next_assignee.nil?
       self.step_changed = true
       true
     end
@@ -144,6 +139,16 @@ module ProcessWorkflowIssuePatch
       self.process_field_actions ||= {} # just in case the :attachments were passed to .new
     end
     
+    def initialize_member_roles
+      self.initial_process_members ||= {}
+      if tracker.process_workflow?
+        tracker.process_roles.each do |role|
+          member = ProcessMember.where(:issue_id => self.id, :process_role_id => role.id).first
+          self.initial_process_members[role.name] = member
+        end
+      end
+    end
+    
     def initialize_process_field_values
       self.initial_process_field_values ||= {}
       if tracker.process_workflow?
@@ -200,6 +205,20 @@ module ProcessWorkflowIssuePatch
     end
   end
   
+  def apply_process_role
+    if self.tracker.process_workflow?
+      step = self.process_step
+      if step.role_is_author?
+        next_assignee = self.author
+      else
+        next_member = get_process_member(step.process_role.name) unless step.process_role.nil?
+        next_assignee = next_member.principal unless next_member.nil?
+      end
+      self.assigned_to = next_assignee unless next_assignee.nil?
+      
+    end
+  end
+  
   def init_process
     if self.tracker.process_workflow?
       apply_process_step_change(self.tracker.process_steps.first)
@@ -245,14 +264,26 @@ module ProcessWorkflowIssuePatch
     end
   end
   
-  def create_journal_with_process_actions
-    create_journal_without_process_actions
+  def create_journal_with_process_info
+    create_journal_without_process_info
     return true if !self.tracker.process_workflow? or @current_journal.nil?
+    
     if self.initial_step != self.process_step
       @current_journal.details << JournalDetail.create(:property => 'attr',
                         :prop_key => 'process_step',
                         :old_value => self.initial_step.name,
                         :value => self.process_step.name)
+    end
+
+    process_member_list.each do |role_name, member|
+      initial_member = self.initial_process_members[role_name]
+      if !initial_member.nil? and (member.user_id != initial_member.user_id)
+        @current_journal.details << JournalDetail.create(:property => 'process_role',
+              :prop_key => role_name,
+              :old_value => initial_member.principal.nil? ? nil : initial_member.principal.name,
+              :value => member.principal.nil? ? nil : member.principal.name
+            )
+      end
     end
     
     process_field_actions.each do |custom_field_id_string, a|
@@ -262,6 +293,7 @@ module ProcessWorkflowIssuePatch
                           :value => a.value)
       end
     end
+    
     @current_journal.save
   end
   
