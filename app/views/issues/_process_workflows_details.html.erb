@@ -7,8 +7,9 @@
     <% end %>
   
   <% @issue.tracker.process_steps.each do |step| %>
-    <tr><td>
-    <h3><%= step.name %></h3>
+    <% if step.process_fields.any? %>
+      <tr><td>
+      <h3><%= step.name %></h3>
       <% step.process_fields.order("position ASC").each do |field| %>
         <tr><td><b><%= field.custom_field.name %></b></td>
           <td>
@@ -21,6 +22,7 @@
           </td>
         </tr>
       <% end %>
+    <% end %>
   <% end %>
       
   <% end %>
