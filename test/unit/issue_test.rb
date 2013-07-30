@@ -46,7 +46,6 @@ class IssueTest < ActiveSupport::TestCase
     
     @issue.set_process_member(@role.name, @user.id)
     @issue.set_process_member(@next_role.name, @next_user.id)
-
     assert @issue.save
     
     @member = ProcessMember.where(:process_role_id => @role.id, :issue_id => @issue.id).first
@@ -185,6 +184,9 @@ class IssueTest < ActiveSupport::TestCase
   def test_sort_steps
     @next_step.move_to_top
     @next_step.save
+    @next_step.reload
+    @step.reload
+    @tracker.reload
     
     new_issue = Issue.new(:project_id => 1, :tracker => @tracker, :author_id => 3,
     :status_id => 1, :priority => IssuePriority.all.first,
@@ -413,9 +415,8 @@ class IssueTest < ActiveSupport::TestCase
   
   def test_initial_member_roles
     @issue.set_process_member(@role.name, @next_user.id)
-    assert @issue.save
-    
-    assert_equal @user, @issue.initial_process_members[@role.name]
+    @issue.save
+    assert_equal @user, @issue.initial_process_members[@role.name].principal
   end
   
 end

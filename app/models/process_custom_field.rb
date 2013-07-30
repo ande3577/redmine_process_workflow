@@ -49,7 +49,7 @@ class ProcessCustomField < CustomField
   private
   def name_unique_for_step?()
     for f in self.process_step.process_fields
-      if self.name = f.custom_field.name
+      if self.name == f.custom_field.name
         return false
       end
     end
