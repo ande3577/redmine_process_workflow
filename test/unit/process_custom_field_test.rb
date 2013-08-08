@@ -1,6 +1,6 @@
 require File.expand_path('../../test_helper', __FILE__)
 
-class ProcessFieldTest < ActiveSupport::TestCase
+class ProcessCustomFieldTest < ActiveSupport::TestCase
   fixtures :trackers
   fixtures :issue_statuses
   fixtures :custom_fields
