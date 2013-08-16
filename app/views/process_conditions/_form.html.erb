@@ -3,6 +3,6 @@
 <div class="box tabular">
   <p><%= f.select 'comparison_mode', ['eql?', 'ne?', 'regex'] %>
   <p><%= f.text_field 'comparison_value' %>
-  <p><%= f.select :step_if_true_id, options_from_collection_for_select(@condition.process_field.process_step.tracker.process_steps, "id", "name", @condition.step_if_true_id), :include_blank => :true%></p>
-  <p><%= f.select :step_if_false_id, options_from_collection_for_select(@condition.process_field.process_step.tracker.process_steps, "id", "name", @condition.step_if_false_id), :include_blank => :true%></p> 
+  <p><%= f.select :step_if_true_id, options_from_collection_for_select(@field.process_step.tracker.process_steps, "id", "name", @condition.step_if_true_id), :include_blank => :true%></p>
+  <p><%= f.select :step_if_false_id, options_from_collection_for_select(@field.process_step.tracker.process_steps, "id", "name", @condition.step_if_false_id), :include_blank => :true%></p> 
 </div>

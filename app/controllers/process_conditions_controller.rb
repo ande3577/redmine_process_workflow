@@ -29,8 +29,6 @@ class ProcessConditionsController < ApplicationController
       redirect_to :controller => :process_fields, :action => :edit, :id => @condition.process_field.id
       return
     end
-    @condition.reload
-    edit
     render :action => :edit
   end
 
@@ -67,6 +65,7 @@ class ProcessConditionsController < ApplicationController
       render_404
       return false
     end
+    @field = @condition.process_field
   end
   
   def build_condition_from_params
