@@ -22,7 +22,7 @@
       <td align="center"><%= condition.step_if_false.name if condition.step_if_false %>
       <td align="center" style="width:15%;"><%= reorder_links('process_field', {:controller => 'process_conditions', :action => 'update', :id => condition}, :put) %></td>
       <td class="buttons"><%= link_to l(:button_edit), { :controller => 'process_conditions', :action => 'edit', :id => condition }, {:class => 'icon icon-edit'} %></td>
-      <td class="buttons"><%= delete_link field %></td>
+      <td class="buttons"><%= delete_link condition %></td>
     </tr>
   <% end %>
   </table>
