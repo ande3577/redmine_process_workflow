@@ -207,7 +207,7 @@ class IssuesControllerTest < ActionController::TestCase
     assert_mail_body_match "custom_field: 2.345", issue_email
     
     assert_mail_body_match "role set to #{new_user.name}", issue_email
-    assert_mail_body_match "custom_field set to 2.345", issue_email
+    assert_mail_body_match "custom_field set to 2.3", issue_email
   end
   
   def test_update_invalid
