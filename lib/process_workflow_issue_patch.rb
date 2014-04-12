@@ -40,6 +40,10 @@ module ProcessWorkflowIssuePatch
   end
   
   module InstanceMethods
+    def process_workflow?
+      !self.tracker.nil? and self.tracker.process_workflow?
+    end
+
     def apply_process_step_change(step)
       return true if step.nil?
       
@@ -51,7 +55,7 @@ module ProcessWorkflowIssuePatch
     end
     
     def process_step
-      return nil unless tracker.process_workflow?
+      return nil unless self.process_workflow?
       step = read_attribute(:process_step)
       state = self.process_state if step.nil?
       step = state.process_step unless state.nil?
@@ -60,7 +64,7 @@ module ProcessWorkflowIssuePatch
     end
     
     def process_step=(step)
-      return unless tracker.process_workflow?
+      return unless self.process_workflow?
       write_attribute(:process_step, step)
     end
     
@@ -103,7 +107,7 @@ module ProcessWorkflowIssuePatch
     end
     
     def safe_attribute_with_process?(attr, user=nil)
-      if self.tracker.process_workflow? && ((attr == 'assigned_to_id') || (attr == 'status_id'))
+      if self.process_workflow? and ((attr == 'assigned_to_id') or (attr == 'status_id'))
         return false
       else
         return safe_attribute_without_process?(attr, user)        
@@ -111,7 +115,7 @@ module ProcessWorkflowIssuePatch
     end
     
     def validate_process_fields
-      return unless tracker.process_workflow?
+      return unless tracker and self.process_workflow?
       
       for field in process_step.process_fields
         custom_field = field.custom_field
@@ -122,7 +126,7 @@ module ProcessWorkflowIssuePatch
     end
     
     def validate_process_roles
-      return unless tracker.process_workflow?
+      return unless self.process_workflow?
       
       for role in tracker.process_roles
         if role.is_required? and (self.process_member_list[role.name].nil? or self.process_member_list[role.name].principal.nil?)
@@ -141,7 +145,7 @@ module ProcessWorkflowIssuePatch
     
     def initialize_member_roles
       self.initial_process_members ||= {}
-      if tracker.process_workflow?
+      if self.process_workflow?
         tracker.process_roles.each do |role|
           member = ProcessMember.where(:issue_id => self.id, :process_role_id => role.id).first
           self.initial_process_members[role.name] = member
@@ -151,7 +155,7 @@ module ProcessWorkflowIssuePatch
     
     def initialize_process_field_values
       self.initial_process_field_values ||= {}
-      if tracker.process_workflow?
+      if self.process_workflow?
         process_step.process_fields.each do |field|
           action = ProcessAction.where(:issue_id => self.id, :process_field_id => field.id).first
           self.initial_process_field_values[field.id] = action.value unless action.nil?
@@ -170,7 +174,7 @@ module ProcessWorkflowIssuePatch
   private
   
   def apply_process_actions
-    return true unless self.tracker.process_workflow?
+    return true unless self.process_workflow?
     process_field_actions.each do |custom_field_id_string, a|
       field = a.process_field
       unless field.nil?
@@ -191,7 +195,7 @@ module ProcessWorkflowIssuePatch
   end
   
   def apply_next_step
-    if self.tracker.process_workflow? and !self.next_step.nil? and self.next_step != self.process_step
+    if self.process_workflow? and !self.next_step.nil? and self.next_step != self.process_step
       step = self.next_step
       self.next_step = nil
       apply_process_step_change(step)
@@ -199,14 +203,14 @@ module ProcessWorkflowIssuePatch
   end
   
   def apply_default_next_step
-    if self.tracker.process_workflow? and !self.step_changed
+    if self.process_workflow? and !self.step_changed
       next_step = self.process_step.default_next_step unless self.process_step.nil?
       apply_process_step_change(next_step) unless next_step.nil?
     end
   end
   
   def apply_process_role
-    if self.tracker.process_workflow?
+    if self.process_workflow?
       step = self.process_step
       if step.role_is_author?
         next_assignee = self.author
@@ -220,13 +224,13 @@ module ProcessWorkflowIssuePatch
   end
   
   def init_process
-    if self.tracker.process_workflow?
+    if self.process_workflow?
       apply_process_step_change(self.tracker.process_steps.first)
     end
   end
   
   def after_tracker_change
-    if self.tracker.process_workflow?
+    if self.process_workflow?
       apply_process_step_change(self.tracker.process_steps.first)
     else
       ProcessState.destroy_all(:issue_id => self.id)
@@ -236,7 +240,7 @@ module ProcessWorkflowIssuePatch
   end
   
   def save_process_members
-    return true unless self.tracker.process_workflow?
+    return true unless self.process_workflow?
     
     self.process_member_list.each do |name, m|
       # check for a member that actually changed to prevent infinite recursion
@@ -258,14 +262,14 @@ module ProcessWorkflowIssuePatch
   end
   
   def save_process_actions
-    return true unless self.tracker.process_workflow?
+    return true unless self.process_workflow?
     process_field_actions.each do |custom_field_id_string, a|
       a.save
     end
   end
   
   def create_journal_with_process_info
-    if self.tracker.process_workflow? and !@current_journal.nil?
+    if self.process_workflow? and !@current_journal.nil?
       if self.initial_step != self.process_step
         @current_journal.details << JournalDetail.create(:property => 'attr',
                           :prop_key => 'process_step',
